@@ -21,6 +21,7 @@ import {
   printNextSteps,
 } from "./utils.js";
 import ora from "ora";
+import { SchemaToResourceGenerator, userData } from "../generate/index.js";
 
 const promptUser = async (options?: InitOptions): Promise<InitOptions> => {
   const config = readConfigFile();
@@ -131,7 +132,7 @@ export const addPackage = async (
 
     const end = Date.now();
     const duration = end - start;
-
+    await SchemaToResourceGenerator(userData);
     printNextSteps(promptResponse, duration);
   } else {
     consola.warn("No config file found, initializing project...");

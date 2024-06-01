@@ -217,11 +217,11 @@ export const formatFilePath = (
     removeExtension: boolean;
   }
 ) => {
-  const { alias, rootPath } = readConfigFile();
+  const { rootPath } = readConfigFile();
   const formattedFP = opts.removeExtension
     ? removeFileExtension(filePath)
     : filePath;
-  return `${opts.prefix === "alias" ? `${alias}/` : rootPath}${formattedFP}`;
+  return `${rootPath}${formattedFP}`;
 };
 
 export const generateServiceFileNames = (newModel: string) => {

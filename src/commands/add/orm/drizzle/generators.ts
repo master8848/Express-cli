@@ -52,7 +52,8 @@ export const createDrizzleConfig = (libPath: string, provider: DBProvider) => {
 export default {
   schema: "./${libPath}/db/schema",
   out: "./${libPath}/db/migrations",
-  driver: "${configDriverMappings[provider]}",
+  dialect: "postgresql",
+  // driver: "${configDriverMappings[provider]}",
   dbCredentials: {
     ${
       provider === "turso"
@@ -64,6 +65,7 @@ export default {
         ? "uri: process.env.DATABASE_URL"
         : "connectionString: process.env.DATABASE_URL"
     }${provider === "vercel-pg" ? '.concat("?sslmode=require")' : ""},
+    // url: process.env.DATABASE_URL,
   }
 } satisfies Config;`
   );
@@ -84,7 +86,7 @@ export const createIndexTs = (dbProvider: DBProvider) => {
 import postgres from "postgres";
 import 'dotenv/config'
 
-export const client = postgres(env.DATABASE_URL);
+export const client = postgres(process.env.DATABASE_URL);
 export const db = drizzle(client);`;
       break;
     case "node-postgres":
@@ -104,7 +106,7 @@ import 'dotenv/config'
 
 neonConfig.fetchConnectionCache = true;
  
-export const sql: NeonQueryFunction<boolean, boolean> = neon(env.DATABASE_URL);
+export const sql: NeonQueryFunction<boolean, boolean> = neon(process.env.DATABASE_URL);
 export const db = drizzle(sql);
 `;
       break;
@@ -163,7 +165,7 @@ export const db = drizzle(connection);
 import mysql from "mysql2/promise";
 import 'dotenv/config'
  
-export const poolConnection = mysql.createPool(env.DATABASE_URL);
+export const poolConnection = mysql.createPool(process.env.DATABASE_URL);
  
 export const db = drizzle(poolConnection);
 `;
@@ -230,7 +232,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 `;
       connectionLogic = `
-const connection = postgres(env.DATABASE_URL, { max: 1 });
+const connection = postgres(process.env.DATABASE_URL, { max: 1 });
 
 const db = drizzle(connection);
 `;
@@ -261,7 +263,7 @@ import { neon, neonConfig, NeonQueryFunction } from '@neondatabase/serverless';
       connectionLogic = `
 neonConfig.fetchConnectionCache = true;
  
-const sql: NeonQueryFunction<boolean, boolean> = neon(env.DATABASE_URL);
+const sql: NeonQueryFunction<boolean, boolean> = neon(process.env.DATABASE_URL);
 const db = drizzle(sql);
 `;
       break;
@@ -283,7 +285,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 `;
       connectionLogic = `
-  const connection = postgres(env.DATABASE_URL, { max: 1 });
+  const connection = postgres(process.env.DATABASE_URL, { max: 1 });
 
   const db = drizzle(connection);
 `;
@@ -329,7 +331,7 @@ import { migrate } from "drizzle-orm/mysql2/migrator";
 import mysql from "mysql2/promise";
 `;
       connectionLogic = `
-  const connection = await mysql.createConnection(env.DATABASE_URL);
+  const connection = await mysql.createConnection(process.env.DATABASE_URL);
 
   const db = drizzle(connection);
 `;
@@ -366,7 +368,7 @@ import { migrate } from "drizzle-orm/libsql/migrator";
   ${imports}
 
 const runMigrate = async () => {
-  if (!env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not defined");
   }
 
@@ -506,10 +508,10 @@ export const addScriptsToPackageJson = (
   const packageJson = JSON.parse(packageJsonData);
 
   const newItems = {
-    "db:generate": `drizzle-kit generate:${driver}`,
+    "db:generate": `drizzle-kit generate`,
     "db:migrate": `tsx ${libPath}/db/migrate.ts`,
     "db:drop": "drizzle-kit drop",
-    "db:pull": `drizzle-kit introspect:${driver}`,
+    "db:pull": `drizzle-kit introspect`,
     ...(driver !== "pg" ? { "db:push": `drizzle-kit push:${driver}` } : {}),
     "db:studio": "drizzle-kit studio",
     "db:check": `drizzle-kit check:${driver}`,
@@ -588,11 +590,12 @@ export const createDotEnv = (
     },
   } = getFilePaths();
   const dburl =
-    databaseUrl ?? "postgresql://postgres:postgres@localhost:5432/{DB_NAME}";
+    databaseUrl ??
+    "DATABASE_URL=postgresql://auther:secure%^^.pass@localhost:5432/appdatabase";
 
   const envPath = path.resolve(".env");
   const envExists = fs.existsSync(envPath);
-  if (!envExists)
+  if (!process.envExists)
     createFile(
       ".env",
       `${
@@ -636,10 +639,10 @@ export const addToDotEnv = (
     prefix: "rootPath",
   });
   const envMjsExists = fs.existsSync(envmjsfilePath);
-  if (!envMjsExists && orm === null) {
+  if (!process.envMjsExists && orm === null) {
     return;
   }
-  if (!envMjsExists)
+  if (!process.envMjsExists)
     createFile(
       envmjsfilePath,
       generateEnvMjs(preferredPackageManager, orm, excludeDbUrlIfBlank)

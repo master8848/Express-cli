@@ -29,6 +29,7 @@ import { scaffoldServerActions } from "./generators/serverActions.js";
 import { scaffoldViewsAndComponentsWithServerActions } from "./generators/views-with-server-actions.js";
 import { addLinkToSidebar } from "./generators/model/views-shared.js";
 import { installShadcnComponentList } from "../add/utils.js";
+import { writeFileSync } from "fs";
 
 type Choice<Value> = {
   name?: string;
@@ -240,13 +241,6 @@ async function askForIndex(fields: DBField[]) {
   }
 }
 
-async function askForTimestamps() {
-  return await confirm({
-    message: "Would you like timestamps (createdAt, updatedAt)?",
-    default: true,
-  });
-}
-
 async function askForChildModel(parentModel: string) {
   return await confirm({
     message: `Would you like to add a child model? (${parentModel})`,
@@ -271,7 +265,7 @@ async function promptUserForSchema(config: Config, resourceType: TResource[]) {
   const tableName = await askForTable();
   const fields = await askForFields(config.orm, config.driver, tableName);
   const indexedField = await askForIndex(fields);
-  const includeTimestamps = await askForTimestamps();
+  const includeTimestamps = true;
   let belongsToUser: boolean = false;
   if (resourceType.includes("model") && config.auth !== null) {
     belongsToUser = await askIfBelongsToUser();
@@ -390,10 +384,7 @@ export async function buildSchema() {
     // TODO
 
     const schemas = formatSchemaForGeneration(schema);
-
-    for (let schema of schemas) {
-      await generateResources(schema, resourceType);
-    }
+    await SchemaToResourceGenerator(schemas);
     printGenerateNextSteps(schema, resourceType);
   } else {
     consola.warn(
@@ -402,3 +393,33 @@ export async function buildSchema() {
     addPackage();
   }
 }
+export async function SchemaToResourceGenerator(schemas) {
+  const resourceType = await askForResourceType();
+  for (let schema of schemas) {
+    await generateResources(schema, resourceType);
+  }
+}
+export const userData = {
+  tableName: "users",
+  fields: [
+    {
+      name: "name",
+      type: "text",
+      notNull: true,
+    },
+    {
+      name: "email",
+      type: "text",
+      notNull: true,
+    },
+    {
+      name: "password",
+      type: "text",
+      notNull: true,
+    },
+  ],
+  index: null,
+  belongsToUser: false,
+  includeTimestamps: true,
+  children: [],
+};
