@@ -12,7 +12,6 @@ import {
   generatePrismaAdapterDriverMappings,
   addLuciaToPrismaSchema,
   updateDrizzleDbIndex,
-  addNodeRsFlagsToNextConfig,
 } from "./utils.js";
 
 import fs from "fs";
@@ -234,7 +233,7 @@ export type UsernameAndPassword = z.infer<typeof authenticationSchema>;
   updateTrpcWithSessionIfInstalled();
 
   // update next config mjs
-  addNodeRsFlagsToNextConfig();
+  // addNodeRsFlagsToNextConfig();
 
   addToInstallList({
     regular: [

@@ -47,8 +47,8 @@ export const DBProviders: DBProviderOptions = {
 export const checkForExistingPackages = async (rootPath: string) => {
   consola.start("Checking project for existing packages...");
   // get package json
-  const { preferredPackageManager } = readConfigFile();
-  const packageJsonInitText = readFileSync("package.json", "utf-8");
+
+  let packageJsonInitText = readFileSync("package.json", "utf-8");
 
   let configObj: Partial<Config> = {
     packages: [],
@@ -191,7 +191,7 @@ export const checkForExistingPackages = async (rootPath: string) => {
     if (configObj.orm === "prisma") {
       // add zod generator to schema to schema.prisma
       // consola.start(
-      //   "Installing zod-prisma for use with Kirimase's generate function."
+      //   "Installing zod-prisma for use with sksn's generate function."
       // );
       addToInstallList({ regular: [], dev: ["zod-prisma"] });
       // await installPackages(
@@ -204,7 +204,7 @@ export const checkForExistingPackages = async (rootPath: string) => {
       await updateTsConfigPrismaTypeAlias();
     } else if (configObj.orm === "drizzle") {
       // consola.start(
-      //   "Installing drizzle-zod for use with Kirimase's generate function."
+      //   "Installing drizzle-zod for use with sksn's generate function."
       // );
       // await installPackages(
       //   { regular: "drizzle-zod", dev: "" },

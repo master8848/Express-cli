@@ -16,11 +16,7 @@ import {
   updateConfigFile,
 } from "../../../../utils.js";
 import { addToDotEnv } from "../../orm/drizzle/generators.js";
-import {
-  addContextProviderToAppLayout,
-  addContextProviderToAuthLayout,
-  addToInstallList,
-} from "../../utils.js";
+import { addToInstallList } from "../../utils.js";
 import { clerkGenerators } from "./generators.js";
 import { formatFilePath, getFilePaths } from "../../../filePaths/index.js";
 import { libAuthUtilsTs } from "../next-auth/generators.js";
@@ -42,8 +38,6 @@ export const addClerk = async () => {
     generateSignUpPageTs,
     homePageWithUserButton,
   } = clerkGenerators;
-  addContextProviderToAuthLayout("ClerkProvider");
-  addContextProviderToAppLayout("ClerkProvider");
   addToDotEnv(
     [
       { key: "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", value: "", public: true },

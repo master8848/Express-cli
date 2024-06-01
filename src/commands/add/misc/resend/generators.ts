@@ -163,7 +163,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
       ut ea consectetur et est culpa et culpa duis.
     </p>
     <hr />
-    <p>Sent with help from Resend and Kirimase 😊</p>
+    <p>Sent with help from Resend and sksn 😊</p>
   </div>
 );
 `;
@@ -190,7 +190,7 @@ export async function POST(request: Request) {
   const { name, email } = emailSchema.parse(body);
   try {
     const data = await resend.emails.send({
-      from: "Kirimase <onboarding@resend.dev>",
+      from: "sksn <onboarding@resend.dev>",
       to: [email],
       subject: "Hello world!",
       react: EmailTemplate({ firstName: name }),

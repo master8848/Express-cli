@@ -61,46 +61,6 @@ type TResourceGroup = "model" | "controller" | "view";
 async function askForResourceType() {
   const { packages, orm } = readConfigFile();
 
-  //   const resourcesRequested = (await checkbox({
-  //     message: "Please select the resources you would like to generate:",
-  //     choices: [
-  //       {
-  //         name: "Model",
-  //         value: "model",
-  //         disabled:
-  //           orm === null
-  //             ? "[You need to have an orm installed. Run 'kirimase add']"
-  //             : false,
-  //       },
-  //       { name: "API Route", value: "api_route" },
-  //       {
-  //         name: "TRPC Route",
-  //         value: "trpc_route",
-  //         disabled: !packages.includes("trpc")
-  //           ? "[You need to have trpc installed. Run 'kirimase add']"
-  //           : false,
-  //       },
-  //       {
-  //         name: "Views + Components (with Shadcn UI, requires TRPC route)",
-  //         value: "views_and_components_trpc",
-  //         disabled:
-  //           !packages.includes("shadcn-ui") || !packages.includes("trpc")
-  //             ? "[You need to have shadcn-ui and trpc installed. Run 'kirimase add']"
-  //             : false,
-  //       },
-  //       {
-  //         name: "Server Actions",
-  //         value: "server_actions",
-  //       },
-  //       {
-  //         name: "Views + Components (with server actions)",
-  //         value: "views_and_components_server_actions",
-  //       },
-  //     ],
-  //   })) as TResource[];
-  //   return resourcesRequested;
-  // }
-
   let resourcesRequested: TResource[] = [];
   let viewRequested: TResource;
   let controllersRequested: TResource[];
@@ -112,51 +72,15 @@ async function askForResourceType() {
         value: "model",
         disabled:
           orm === null
-            ? "[You need to have an orm installed. Run 'kirimase add']"
+            ? "[You need to have an orm installed. Run 'sksn add']"
             : false,
       },
       { name: "Controller", value: "controller" },
-      {
-        name: "View",
-        value: "view",
-        disabled: !packages.includes("shadcn-ui")
-          ? "[You need to have shadcn-ui installed. Run 'kirimase add']"
-          : false,
-      },
     ],
   })) as TResourceGroup[];
 
   if (resourcesTypesRequested.includes("model"))
     resourcesRequested.push("model");
-
-  if (resourcesTypesRequested.includes("view")) {
-    viewRequested = (await select({
-      message: "Please select the type of view you would like to generate:",
-      choices: [
-        {
-          name: "Server Actions with Optimistic UI",
-          value: "views_and_components_server_actions",
-        },
-        {
-          name: "tRPC with React Hook Form",
-          value: "views_and_components_trpc",
-          disabled: !packages.includes("trpc")
-            ? "[You need to have tRPC installed. Run 'kirimase add']"
-            : false,
-        },
-      ],
-    })) as TResource;
-    if (
-      viewRequested === "views_and_components_server_actions" &&
-      resourcesTypesRequested.includes("controller")
-    )
-      resourcesRequested.push("server_actions");
-    if (
-      viewRequested === "views_and_components_trpc" &&
-      resourcesTypesRequested.includes("controller")
-    )
-      resourcesRequested.push("trpc_route");
-  }
 
   if (resourcesTypesRequested.includes("controller")) {
     controllersRequested = (await checkbox({
@@ -180,9 +104,7 @@ async function askForResourceType() {
           name: "tRPC",
           value: "trpc_route",
           disabled: !packages.includes("trpc")
-            ? "[You need to have tRPC installed. Run 'kirimase add']"
-            : viewRequested === "views_and_components_trpc"
-            ? "[Already generated with your selected view]"
+            ? "[You need to have tRPC installed. Run 'sksn add']"
             : false,
         },
       ].filter((item) =>
@@ -474,32 +396,13 @@ async function generateResources(
   resourceType: TResource[]
 ) {
   const config = readConfigFile();
-  const { tableNameNormalEnglishCapitalised: tnEnglish } = formatTableName(
-    schema.tableName
-  );
-
-  if (
-    (resourceType.includes("views_and_components_trpc") ||
-      resourceType.includes("views_and_components_server_actions")) &&
-    !config.t3
-  ) {
-    const addToSidebar = await confirm({
-      message: `Would you like to add a link to '${tnEnglish}' in your sidebar?`,
-      default: true,
-    });
-    if (addToSidebar) addLinkToSidebar(schema.tableName);
-  }
 
   if (resourceType.includes("model"))
     scaffoldModel(schema, config.driver, config.hasSrc);
   if (resourceType.includes("api_route")) scaffoldAPIRoute(schema);
   if (resourceType.includes("trpc_route")) scaffoldTRPCRoute(schema);
-  if (resourceType.includes("views_and_components_trpc"))
-    scaffoldViewsAndComponents(schema);
+
   if (resourceType.includes("server_actions")) scaffoldServerActions(schema);
-  if (resourceType.includes("views_and_components_server_actions"))
-    scaffoldViewsAndComponentsWithServerActions(schema);
-  await installShadcnComponentList();
 }
 
 export async function buildSchema() {

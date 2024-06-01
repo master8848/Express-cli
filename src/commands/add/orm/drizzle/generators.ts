@@ -62,10 +62,10 @@ export default {
         ? `url: env.DATABASE_URL,
     authToken: env.DATABASE_AUTH_TOKEN`
         : provider === "better-sqlite3"
-          ? "url: env.DATABASE_URL"
-          : provider === "mysql-2" || provider === "planetscale"
-            ? "uri: env.DATABASE_URL"
-            : "connectionString: env.DATABASE_URL"
+        ? "url: env.DATABASE_URL"
+        : provider === "mysql-2" || provider === "planetscale"
+        ? "uri: env.DATABASE_URL"
+        : "connectionString: env.DATABASE_URL"
     }${provider === "vercel-pg" ? '.concat("?sslmode=require")' : ""},
   }
 } satisfies Config;`
@@ -587,7 +587,7 @@ export const installDependencies = async (
       regular: [
         "drizzle-orm",
         "drizzle-zod",
-        "@t3-oss/env-nextjs",
+        // "@t3-oss/env-nextjs",
         "zod",
         "nanoid",
         ...dbSpecificPackage.regular,
@@ -635,9 +635,6 @@ export const createDotEnv = (
     prefix: "rootPath",
     removeExtension: false,
   });
-  const envMjsExists = fs.existsSync(envmjsfilePath);
-  if (!envMjsExists)
-    createFile(envmjsfilePath, generateEnvMjs(preferredPackageManager, orm));
 };
 
 export const addToDotEnv = (
@@ -791,10 +788,10 @@ export const createComputer = async (computer: NewComputer) => {
     ${
       driver === "mysql" ? "" : "const [c] = "
     } await db.insert(computers).values(newComputer)${
-      driver === "mysql"
-        ? "\n    return { success: true }"
-        : ".returning();\n    return { computer: c }"
-    }
+    driver === "mysql"
+      ? "\n    return { success: true }"
+      : ".returning();\n    return { computer: c }"
+  }
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
     console.error(message);
@@ -827,10 +824,10 @@ export const deleteComputer = async (id: ComputerId) => {
     ${
       driver === "mysql" ? "" : "const [c] = "
     }await db.delete(computers).where(eq(computers.id, computerId!))${
-      driver === "mysql"
-        ? "\n    return { success: true };"
-        : ".returning();\n    return { computer: c };"
-    }
+    driver === "mysql"
+      ? "\n    return { success: true };"
+      : ".returning();\n    return { computer: c };"
+  }
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again"
     console.error(message);

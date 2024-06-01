@@ -1,11 +1,11 @@
 {
-  "name": "kirimase",
+  "name": "sksn",
   "version": "0.0.57",
-  "description": "A Rails-like CLI for building full-stack Next.js apps faster",
+  "description": "A Rails-like CLI for building node express",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "kirimase": "./dist/index.js"
+    "sksn": "./dist/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -14,10 +14,7 @@ import {
   serverRouterComputersTs,
   serverTrpcTs,
 } from "./generators.js";
-import {
-  addContextProviderToAppLayout,
-  addToInstallList,
-} from "../../utils.js";
+import { addToInstallList } from "../../utils.js";
 import { formatFilePath, getFilePaths } from "../../../filePaths/index.js";
 
 export const addTrpc = async () => {
@@ -114,37 +111,10 @@ export const addTrpc = async () => {
   // );
 
   addToInstallList({
-    regular: [
-      "@tanstack/react-query@^4.32.6",
-      "@trpc/client@^10.37.1",
-      "@trpc/react-query@^10.37.1",
-      "@trpc/server@^10.37.1",
-      "@trpc/next@^10.37.1",
-      "superjson",
-      "server-only",
-    ],
+    regular: ["@trpc/server@^10.37.1", "superjson", "server-only"],
     dev: [],
   });
   if (orm === null) addToInstallList({ regular: ["zod"], dev: [] });
 
   addPackageToConfig("trpc");
-  // 9. Instruct user to add the <Provider /> to their root layout.
-  addContextProviderToAppLayout("TrpcProvider");
-  // addToDotEnv(
-  //   [
-  //     {
-  //       key: "VERCEL_URL",
-  //       value: "https://your-project-url.vercel.app",
-  //       // value: "",
-  //       isUrl: true,
-  //       customZodImplementation: "z.string().url().optional()",
-  //     },
-  //   ],
-  //   hasSrc ? "src/" : ""
-  // );
-
-  // consola.success("Successfully added trpc to your project!");
-  // consola.warn(
-  //   "Please add the <Provider> to your root layout, by wrapping it around your children"
-  // );
 };

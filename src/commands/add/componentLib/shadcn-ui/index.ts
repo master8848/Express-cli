@@ -13,7 +13,6 @@ import {
 } from "../../../../utils.js";
 import { AvailablePackage, PMType } from "../../../../types.js";
 import {
-  addContextProviderToAppLayout,
   addContextProviderToRootLayout,
   addToInstallList,
   addToShadcnComponentList,
@@ -138,8 +137,6 @@ export const installShadcnUI = async (
     "label",
     "dropdown-menu",
   ]);
-
-  addContextProviderToAppLayout("ShadcnToast");
 
   // if (packages.includes("next-auth")) updateSignInComponentWithShadcnUI();
 };

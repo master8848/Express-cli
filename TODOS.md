@@ -1,7 +1,7 @@
 # Init Script
 
 - [x] Change from where is lib folder to "is there a lib folder?"
-- [x] after init script, create a kirimase.config.json that has the following
+- [x] after init script, create a sksn.config.json that has the following
 
   - using src folder? (this will be used for lib folder and file creation)
   - db type (pg, mysql, sqlite)

@@ -18,11 +18,7 @@ import {
   libAuthUtilsTs,
 } from "./generators.js";
 import { AuthDriver, AuthProvider, AuthProviders } from "./utils.js";
-import {
-  addContextProviderToAppLayout,
-  // addContextProviderToAuthLayout,
-  addToInstallList,
-} from "../../utils.js";
+import { addToInstallList } from "../../utils.js";
 import { addToDotEnv } from "../../orm/drizzle/generators.js";
 import { addToPrismaSchema } from "../../../generate/utils.js";
 import { prismaGenerate } from "../../orm/utils.js";
@@ -184,9 +180,4 @@ export const addNextAuth = async (
 
   addPackageToConfig("next-auth");
   updateConfigFile({ auth: "next-auth" });
-  // 9. Instruct user to add the <Provider /> to their root layout.
-  // addContextProviderToAuthLayout("NextAuthProvider");
-  addContextProviderToAppLayout("NextAuthProvider");
-  // if (orm === "prisma") await prismaGenerate(preferredPackageManager);
-  // consola.success("Successfully added Next Auth to your project!");
 };

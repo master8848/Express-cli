@@ -25,7 +25,6 @@ const generateRouteContent = (schema: Schema) => {
 
   const template = `"use server";
 
-import { revalidatePath } from "next/cache";
 import {
   create${tableNameSingularCapitalised},
   delete${tableNameSingularCapitalised},
@@ -56,13 +55,11 @@ const handleErrors = (e: unknown) => {
   return errMsg;
 };
 
-const revalidate${tableNamePluralCapitalised} = () => revalidatePath("/${tableNameKebabCase}");
 
 export const create${tableNameSingularCapitalised}Action = async (input: New${tableNameSingularCapitalised}Params) => {
   try {
     const payload = insert${tableNameSingularCapitalised}Params.parse(input);
     await create${tableNameSingularCapitalised}(payload);
-    revalidate${tableNamePluralCapitalised}();
   } catch (e) {
     return handleErrors(e);
   }
@@ -72,7 +69,6 @@ export const update${tableNameSingularCapitalised}Action = async (input: Update$
   try {
     const payload = update${tableNameSingularCapitalised}Params.parse(input);
     await update${tableNameSingularCapitalised}(payload.id, payload);
-    revalidate${tableNamePluralCapitalised}();
   } catch (e) {
     return handleErrors(e);
   }
@@ -82,7 +78,6 @@ export const delete${tableNameSingularCapitalised}Action = async (input: ${table
   try {
     const payload = ${tableNameSingular}IdSchema.parse({ id: input });
     await delete${tableNameSingularCapitalised}(payload.id);
-    revalidate${tableNamePluralCapitalised}();
   } catch (e) {
     return handleErrors(e);
   }

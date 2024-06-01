@@ -9,7 +9,7 @@ export const scaffoldAPIRoute = (schema: Schema) => {
   const { tableName } = schema;
   const path = `${hasSrc ? "src/" : ""}app/api/${toCamelCase(
     tableName
-  )}/route.ts`;
+  )}/${toCamelCase(tableName)}.ts`;
   createFile(path, generateRouteContent(schema, driver));
 };
 
@@ -22,8 +22,7 @@ const generateRouteContent = (schema: Schema, driver: DBType) => {
   } = formatTableName(tableName);
   const { shared } = getFilePaths();
 
-  const template = `import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+  const template = `import { RequestHandler } from "express";
 import { z } from "zod";
 
 import {
@@ -43,29 +42,28 @@ import {
     removeExtension: false,
   })}/${tableNameCamelCase}";
 
-export async function POST(req: Request) {
+const  POST=async function (req,res,next):RequestHandler {
   try {
     const validatedData = insert${tableNameSingularCapitalised}Params.parse(await req.json());
     const { ${
       driver === "mysql" ? "success" : tableNameSingular
     } } = await create${tableNameSingularCapitalised}(validatedData);
 
-    revalidatePath("/${tableNameCamelCase}"); // optional - assumes you will have named route same as entity
-
-    return NextResponse.json(${
+   
+    return res.json(${
       driver === "mysql" ? "success" : tableNameSingular
     }, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.issues }, { status: 400 });
+      return res.json({ error: err.issues }, { status: 400 });
     } else {
-      return NextResponse.json({ error: err }, { status: 500 });
+      return res.json({ error: err }, { status: 500 });
     }
   }
 }
 
 
-export async function PUT(req: Request) {
+const  PUT=async function (req,res,next):RequestHandler {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -77,19 +75,19 @@ export async function PUT(req: Request) {
       driver === "mysql" ? "success" : tableNameSingular
     } } = await update${tableNameSingularCapitalised}(validatedParams.id, validatedData);
 
-    return NextResponse.json(${
+    return res.json(${
       driver === "mysql" ? "success" : tableNameSingular
     }, { status: 200 });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.issues }, { status: 400 });
+      return res.json({ error: err.issues }, { status: 400 });
     } else {
-      return NextResponse.json(err, { status: 500 });
+      return res.json(err, { status: 500 });
     }
   }
 }
 
-export async function DELETE(req: Request) {
+const  DELETE=async function (req,res,next):RequestHandler {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -99,14 +97,14 @@ export async function DELETE(req: Request) {
       driver === "mysql" ? "success" : tableNameSingular
     } } = await delete${tableNameSingularCapitalised}(validatedParams.id);
 
-    return NextResponse.json(${
+    return res.json(${
       driver === "mysql" ? "success" : tableNameSingular
     }, { status: 200 });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: err.issues }, { status: 400 });
+      return res.json({ error: err.issues }, { status: 400 });
     } else {
-      return NextResponse.json(err, { status: 500 });
+      return res.json(err, { status: 500 });
     }
   }
 }

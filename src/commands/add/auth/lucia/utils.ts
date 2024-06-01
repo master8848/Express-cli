@@ -218,23 +218,3 @@ export const db = drizzle(connection, { schema });
   // TODO: NOW
   updateRootSchema("auth", true, "lucia");
 };
-
-export const addNodeRsFlagsToNextConfig = () => {
-  const searchQuery = "const nextConfig = {};";
-  const replacementText = `const nextConfig = {
-  webpack: (config) => {
-    config.externals.push("@node-rs/argon2", "@node-rs/bcrypt");
-    return config;
-  },
-};
-`;
-  const path = "next.config.mjs";
-  const ncExists = existsSync(path);
-  if (!ncExists) {
-    console.log("Could not find `next.config.mjs`. Please update it manually.");
-  }
-
-  const ncContents = readFileSync(path, "utf-8");
-  const ncUpdated = ncContents.replace(searchQuery, replacementText);
-  replaceFile(path, ncUpdated);
-};

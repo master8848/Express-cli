@@ -104,22 +104,18 @@ export async function installPackages(
 }
 
 export const createConfigFile = (options: Config) => {
-  createFile("./kirimase.config.json", JSON.stringify(options, null, 2));
+  createFile("./sksn.config.json", JSON.stringify(options, null, 2));
 };
 
 export const updateConfigFile = (options: UpdateConfig) => {
   const config = readConfigFile();
   const newConfig = { ...config, ...options };
-  replaceFile(
-    "./kirimase.config.json",
-    JSON.stringify(newConfig, null, 2),
-    false
-  );
+  replaceFile("./sksn.config.json", JSON.stringify(newConfig, null, 2), false);
 };
 
 export const readConfigFile = (): (Config & { rootPath: string }) | null => {
   // Define the path to package.json
-  const configPath = path.join(process.cwd(), "kirimase.config.json");
+  const configPath = path.join(process.cwd(), "sksn.config.json");
 
   if (!fs.existsSync(configPath)) {
     return null;
@@ -249,13 +245,13 @@ export const sendEvent = async (
 ) => {
   const config = readConfigFile();
   if (config.analytics === false) return;
-  const url = "https://kirimase-proxy-analytics.vercel.app";
+  const url = "https://sksn-proxy-analytics.vercel.app";
   // const url = "http://localhost:3000";
   try {
     await fetch(url + `/api/send-event`, {
       method: "POST",
       headers: {
-        "x-request-from": "kirimase",
+        "x-request-from": "sksn",
       },
       body: JSON.stringify({
         event,

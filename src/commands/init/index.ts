@@ -3,40 +3,35 @@ import { createConfigFile, sendEvent } from "../../utils.js";
 import { InitOptions, PMType } from "../../types.js";
 import { consola } from "consola";
 import { addPackage } from "../add/index.js";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { checkForPackageManager } from "./utils.js";
 import figlet from "figlet";
 import chalk from "chalk";
 
 export async function initProject(options?: InitOptions) {
-  const nextjsProjectExists = existsSync("package.json");
-  if (!nextjsProjectExists) {
-    consola.fatal(
-      "No Next.js project detected. Please create a Next.js project and then run `kirimase init` within that directory."
-    );
-    process.exit(0);
+  const packageJsonExists = existsSync("package.json");
+  if (!packageJsonExists) {
+    const newPackage = `
+    {
+      "name": "test",
+      "version": "1.0.0",
+      "main": "index.js",
+      "scripts": {
+        
+      },
+      "keywords": [],
+      "author": "",
+      "license": "ISC",
+      "description": ""
+    }`;
+    await writeFileSync("package.json", newPackage);
   }
-  const usingAppDirWithSrc = existsSync(path.join(process.cwd(), "src/app"));
-  const usingAppDirWithOutSrc = existsSync(path.join(process.cwd(), "app"));
-  if (!usingAppDirWithOutSrc && !usingAppDirWithSrc) {
-    consola.fatal("Kirimase only works with the Next.js App Directory.");
-    process.exit(0);
-  }
-
   console.clear();
   console.log("\n");
-  console.log(chalk(figlet.textSync("Kirimase", { font: "ANSI Shadow" })));
-  const srcExists =
-    usingAppDirWithSrc ??
-    options.hasSrcFolder ??
-    (await select({
-      message: "Are you using a 'src' folder?",
-      choices: [
-        { name: "Yes", value: true },
-        { name: "No", value: false },
-      ],
-    }));
+
+  console.log(chalk(figlet.textSync("sksn", { font: "ANSI Shadow" })));
+  const srcExists = true;
 
   // console.log(options);
   const preferredPackageManager =
@@ -55,14 +50,36 @@ export async function initProject(options?: InitOptions) {
 
   const tsConfigExists = existsSync("tsconfig.json");
   if (!tsConfigExists) {
-    consola.info("No TSConfig found...");
-    consola.fatal("Kirimase is only compatible with Typescript projects.");
-    process.exit(0);
+    const newTs = `{
+      "compilerOptions": {
+        "skipLibCheck": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "target": "ESNext",
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "outDir": "dist",
+        "lib": [ "esnext" ],
+        "types": [ "node" ],
+        "baseUrl": "./",
+      },
+      "exclude": [ "node_modules" ],
+      "include": [
+        "src/**/*.ts",
+        "bin/*.ts"
+      ]
+    }
+    `;
+    await writeFileSync("tsconfig.json", newTs);
   }
-  const tsConfigString = readFileSync("tsconfig.json", "utf-8");
   let alias: string = "@";
-  if (tsConfigString.includes("@/*")) alias = "@";
-  if (tsConfigString.includes("~/*")) alias = "~";
+  try {
+    const tsConfigString = readFileSync("tsconfig.json", "utf-8");
+    if (tsConfigString.includes("@/*")) alias = "@";
+    if (tsConfigString.includes("~/*")) alias = "~";
+  } catch (error) {}
 
   createConfigFile({
     driver: undefined,
@@ -77,7 +94,7 @@ export async function initProject(options?: InitOptions) {
     alias,
     analytics: true,
   });
-  // consola.success("Kirimase initialized!");
+  // consola.success("sksn initialized!");
   // consola.info("You can now add packages.");
   addPackage(options, true);
 }

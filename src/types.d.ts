@@ -76,7 +76,7 @@ export type AvailablePackage =
   | "kinde"
   | "stripe";
 
-export type PackageType = "orm" | "auth" | "componentLib" | "misc";
+export type PackageType = "orm" | "auth" | "misc";
 export type ComponentLibType = "shadcn-ui";
 export type ORMType = "drizzle" | "prisma";
 export type AuthType = "next-auth" | "clerk" | "lucia" | "kinde";

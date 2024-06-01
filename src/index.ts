@@ -7,15 +7,15 @@ import { addPackage } from "./commands/add/index.js";
 import { toggleAnalytics } from "./commands/init/utils.js";
 
 const program = new Command();
-program.name("kirimase").description("Kirimase CLI").version("0.0.57");
+program.name("sksn").description("sksn CLI").version("0.0.57");
 
-program
-  .command("analytics")
-  .option("-t, --toggle", "toggle anonymous analytics")
-  .action(toggleAnalytics);
+// program
+//   .command("analytics")
+//   .option("-t, --toggle", "toggle anonymous analytics")
+//   .action(toggleAnalytics);
 
 addCommonOptions(program.command("init"))
-  .description("initialise and configure kirimase within directory")
+  .description("initialise and configure sksn within directory")
   .action(initProject);
 
 program
@@ -43,11 +43,7 @@ function addCommonOptions(command: Command) {
     .option("-o, --orm <orm>", "preferred orm (prisma, drizzle)")
     .option("-db, --db <db>", "preferred database (pg, mysql, sqlite)")
     .option("-dbp, --db-provider <db>", "database provider")
-    .option("-a, --auth <auth>", "preferred auth (next-auth, clerk, lucia)")
-    .option(
-      "-ap, --auth-providers <auth-providers...>",
-      "auth providers (if using next-auth - discord, google, github, apple)"
-    )
+    .option("-a, --auth <auth>", "preferred auth (lucia)")
     .option(
       "-mp, --misc-packages <packages...>",
       "misc packages (resend, stripe, trpc)"

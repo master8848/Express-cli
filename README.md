@@ -1,29 +1,29 @@
 <p align="center">
   <picture>
-  <img src="https://github.com/nicoalbanese/gifs_for_demos/blob/main/samurai-helmet.png?raw=true" width="130" alt="Logo for Kirimase">
+  <img src="https://github.com/nicoalbanese/gifs_for_demos/blob/main/samurai-helmet.png?raw=true" width="130" alt="Logo for sksn">
 </picture>
 </p>
 
 <h1 align="center">
-  Kirimase
+  sksn
 </h1>
 <p align="center">
-<img src="https://img.shields.io/npm/v/kirimase?style=flat-square" alt="npm_version">
+<img src="https://img.shields.io/npm/v/sksn?style=flat-square" alt="npm_version">
 </p>
 
-<p align="center">Kirimase is a command-line tool for <strong>building full-stack Next.js apps faster</strong>. It supercharges your development workflow, allowing you to quickly integrate packages and scaffold resources for your application with best practices in mind.</p>
+<p align="center">sksn is a command-line tool for <strong>building full-stack Next.js apps faster</strong>. It supercharges your development workflow, allowing you to quickly integrate packages and scaffold resources for your application with best practices in mind.</p>
 
 <br />
 <a href="https://www.youtube.com/watch?v=33jlErS3Wxg" target="_blank">
   <p align="center">
-    <img src="https://github.com/nicoalbanese/gifs_for_demos/blob/main/Screenshot%202023-10-15%20at%2010.36.02.png?raw=true" alt="Kirimase Demo" width="420" />
+    <img src="https://github.com/nicoalbanese/gifs_for_demos/blob/main/Screenshot%202023-10-15%20at%2010.36.02.png?raw=true" alt="sksn Demo" width="420" />
   </p>
 </a>
 <a href="https://www.youtube.com/watch?v=33jlErS3Wxg" target="_blank">
   <p align="center">Watch the most recent demo here</p>
 </a>
 
-<a href="https://kirimase.dev/the-tutorial" target="_blank">
+<a href="https://sksn.dev/the-tutorial" target="_blank">
   <p align="center">Check out the official tutorial here</p>
 </a>
 
@@ -36,10 +36,10 @@
 
 ## Quick Start
 
-Install Kirimase CLI globally:
+Install sksn CLI globally:
 
 ```bash
-npm install -g kirimase
+npm install -g sksn
 ```
 
 <br />
@@ -49,16 +49,16 @@ If you don't already have a Nextjs app, run create-next-app with your preferred 
 Then run the following command within the directory of your project:
 
 ```bash
-kirimase init
+sksn init
 ```
 
-Note: Kirimase is not compatible with the the pages directory.
+Note: sksn is not compatible with the the pages directory.
 
 # Commands
 
 Run these commands within the directory of your Nextjs app:
 
-### 1. `kirimase add`
+### 1. `sksn add`
 
 Initializes and configures the following packages for your Next.js project, categorized into:
 
@@ -66,12 +66,12 @@ Initializes and configures the following packages for your Next.js project, cate
 
 #### Drizzle-ORM
 
-- Based on your chosen database type (PostgreSQL, MySQL, SQLite), Kirimase sets up the required files for [Drizzle-ORM](https://github.com/drizzle-team/drizzle-orm), [drizzle-zod](https://github.com/drizzle-team/drizzle-orm/blob/main/drizzle-zod/README.md) for validations and and [drizzle-kit](https://github.com/drizzle-team/drizzle-kit-mirror) to manage migrations.
+- Based on your chosen database type (PostgreSQL, MySQL, SQLite), sksn sets up the required files for [Drizzle-ORM](https://github.com/drizzle-team/drizzle-orm), [drizzle-zod](https://github.com/drizzle-team/drizzle-orm/blob/main/drizzle-zod/README.md) for validations and and [drizzle-kit](https://github.com/drizzle-team/drizzle-kit-mirror) to manage migrations.
 - Scripts are auto-added to `package.json` for immediate use of drizzle-kit.
 
 #### Prisma
 
-- Kirimase sets up required files for [Prisma](https://github.com/prisma/prisma) with [zod-prisma](https://github.com/CarterGrimmeisen/zod-prisma) for validations.
+- sksn sets up required files for [Prisma](https://github.com/prisma/prisma) with [zod-prisma](https://github.com/CarterGrimmeisen/zod-prisma) for validations.
 
 ---
 
@@ -121,11 +121,11 @@ Initializes and configures the following packages for your Next.js project, cate
 
 - Installs and configures [Resend](https://resend.com/)
 
-Kirimase also adds relevant keys to your `.env` which you'll need to provide values for.
+sksn also adds relevant keys to your `.env` which you'll need to provide values for.
 
 <br />
 
-## 2. `kirimase generate`
+## 2. `sksn generate`
 
 Akin to `rails scaffold` but for Next.js:
 
@@ -133,7 +133,7 @@ Akin to `rails scaffold` but for Next.js:
 
 ![](https://github.com/nicoalbanese/gifs_for_demos/blob/main/gif_generate_script_2.gif?raw=true)
 
-Kirimase generates:
+sksn generates:
 
 #### a) Model:
 
@@ -154,15 +154,15 @@ Kirimase generates:
 
 ## Run in non-interactive mode
 
-As of v0.0.23, you can run `kirimase init` and `kirimase add` entirely via the command line as follows:
+As of v0.0.23, you can run `sksn init` and `sksn add` entirely via the command line as follows:
 
 ```sh
-kirimase init -sf yes -pm bun --orm prisma -db pg -a next-auth -ap github discord -mp trpc stripe resend -cl shadcn-ui -ie yes
+sksn init -sf yes -pm bun --orm prisma -db pg -a next-auth -ap github discord -mp trpc stripe resend -cl shadcn-ui -ie yes
 ```
 
 | Command | Short Flag | Long Option       | Description                                    | Argument          |
 | ------- | ---------- | ----------------- | ---------------------------------------------- | ----------------- |
-| init    | -          | -                 | initialise and configure kirimase              | -                 |
+| init    | -          | -                 | initialise and configure sksn                  | -                 |
 | -       | -sf        | --src-folder      | use a src folder                               | `yes` or `no`     |
 | -       | -pm        | --package-manager | package manager                                | `<pm>`            |
 | -       | -cl        | --component-lib   | component library                              | `<component-lib>` |
@@ -176,7 +176,7 @@ kirimase init -sf yes -pm bun --orm prisma -db pg -a next-auth -ap github discor
 
 ## Contributing
 
-Keen on enhancing Kirimase? Contributions, bug reports, and feature requests are always welcome. Feel free to open an issue or submit a pull request.
+Keen on enhancing sksn? Contributions, bug reports, and feature requests are always welcome. Feel free to open an issue or submit a pull request.
 
 To run locally:
 
@@ -184,7 +184,7 @@ To run locally:
 pnpm i
 pnpm run dev
 
-npm install -g . (in a second terminal - this will then make kirimase available across your machine using "kirimase *command*")
+npm install -g . (in a second terminal - this will then make sksn available across your machine using "sksn *command*")
 ```
 
 ## License

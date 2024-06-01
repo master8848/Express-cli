@@ -181,18 +181,18 @@ export default async function AuthLayout({
 }
 `;
 
-export const createAuthLayoutFile = () => {
-  const { shared } = getFilePaths();
-  const layoutPath = formatFilePath(shared.auth.layoutPage, {
-    prefix: "rootPath",
-    removeExtension: false,
-  });
+// export const createAuthLayoutFile = () => {
+//   const { shared } = getFilePaths();
+//   const layoutPath = formatFilePath(shared.auth.layoutPage, {
+//     prefix: "rootPath",
+//     removeExtension: false,
+//   });
 
-  const layoutExists = existsSync(layoutPath);
+//   const layoutExists = existsSync(layoutPath);
 
-  if (!layoutExists)
-    createFile(layoutPath, defaultAuthLayout(shared.auth.authUtils));
-};
+//   if (!layoutExists)
+//     createFile(layoutPath, defaultAuthLayout(shared.auth.authUtils));
+// };
 
 const landingPage = `/**
  * v0 by Vercel.

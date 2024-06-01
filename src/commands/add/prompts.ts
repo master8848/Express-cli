@@ -18,16 +18,6 @@ import { consola } from "consola";
 
 const nullOption = { name: "None", value: null };
 
-export const askComponentLib = async (options: InitOptions) => {
-  return (
-    options.componentLib ??
-    ((await select({
-      message: "Select a component library to use:",
-      choices: [...Packages.componentLib, new Separator(), nullOption],
-    })) as ComponentLibType | null)
-  );
-};
-
 export const askOrm = async (options: InitOptions) => {
   return (
     options.orm ??
@@ -86,17 +76,6 @@ export const askPscale = async (options: InitOptions) => {
   );
 };
 
-export const askExampleModel = async (options: InitOptions) => {
-  return (
-    options.includeExample ??
-    (await confirm({
-      message:
-        "Would you like to include an example model? (suggested for new users)",
-      default: false,
-    }))
-  );
-};
-
 export const askAuth = async (options: InitOptions) => {
   return (
     options.auth ??
@@ -105,50 +84,4 @@ export const askAuth = async (options: InitOptions) => {
       choices: [...Packages.auth, new Separator(), nullOption],
     })) as AuthType | null)
   );
-};
-
-export const askAuthProvider = async () => {
-  return (await checkbox({
-    message: "Select a provider to add",
-    choices: Object.keys(AuthProviders).map((p) => {
-      return { name: p, value: p };
-    }),
-  })) as AuthProvider[];
-};
-
-export const askMiscPackages = async (
-  existingPackages: AvailablePackage[],
-  hasOrmAndAuth: boolean
-) => {
-  let uninstalledPackages: PackageChoice[] = [];
-
-  if (existingPackages.length === 0) {
-    const { packages: packagesPostOrmAndAuth } = readConfigFile();
-    uninstalledPackages = Packages.misc.filter(
-      (p) => !packagesPostOrmAndAuth.includes(p.value)
-    );
-  } else {
-    uninstalledPackages = Packages.misc.filter(
-      (p) => !existingPackages.includes(p.value)
-    );
-  }
-  if (hasOrmAndAuth === false)
-    uninstalledPackages = uninstalledPackages.map((pkg) =>
-      pkg.value === "stripe"
-        ? {
-            ...pkg,
-            disabled: "(you must have an ORM and Auth to install Stripe)",
-          }
-        : pkg
-    );
-
-  if (uninstalledPackages.length > 0) {
-    return await checkbox({
-      message: "Select any miscellaneous packages to add:",
-      choices: uninstalledPackages,
-    });
-  } else {
-    consola.info("All available packages already installed.");
-    return [];
-  }
 };

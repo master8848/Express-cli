@@ -76,7 +76,7 @@ export const addKinde = async () => {
       key: "KINDE_CLIENT_SECRET",
       value: "",
     },
-    { key: "KINDE_ISSUER_URL", value: "https://kirimase.kinde.com" },
+    { key: "KINDE_ISSUER_URL", value: "https://sksn.kinde.com" },
     { key: "KINDE_SITE_URL", value: "http://localhost:3000" },
     { key: "KINDE_POST_LOGOUT_REDIRECT_URL", value: "http://localhost:3000" },
     {
