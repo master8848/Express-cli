@@ -57,13 +57,13 @@ const promptUser = async (options?: InitOptions): Promise<InitOptions> => {
     if (usePscale) dbProvider = "planetscale";
   }
 
-  const auth = config.auth || !orm ? undefined : await askAuth(options);
+  // const auth = config.auth || !orm ? undefined : await askAuth(options);
 
   return {
     orm,
     dbProvider,
     db: dbType,
-    auth,
+    auth: undefined,
     miscPackages: [],
   };
 };
@@ -112,15 +112,15 @@ export const addPackage = async (
         updateConfigFile({ orm: null, driver: null, provider: null });
     }
     // check if auth
-    if (config.auth === undefined) {
-      if (promptResponse.auth && promptResponse.auth !== null)
-        spinner.text =
-          "Configuring " +
-          promptResponse.auth[0].toUpperCase() +
-          promptResponse.orm.slice(1);
+    // if (config.auth === undefined) {
+    //   if (promptResponse.auth && promptResponse.auth !== null)
+    //     spinner.text =
+    //       "Configuring " +
+    //       promptResponse.auth[0].toUpperCase() +
+    //       promptResponse.orm.slice(1);
 
-      if (promptResponse.auth === "lucia") await addLucia();
-    }
+    //   if (promptResponse.auth === "lucia") await addLucia();
+    // }
 
     spinner.text = "Finishing configuration";
 

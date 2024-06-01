@@ -76,12 +76,27 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useFormStatus } from "react-dom";
 
-import { signUpAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signUpAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
-import { Label } from "${formatFilePath(`components/ui/label`, { prefix: "alias", removeExtension: false })}";
-import { Input } from "${formatFilePath(`components/ui/input`, { prefix: "alias", removeExtension: false })}";
-import { Button } from "${formatFilePath(`components/ui/button`, { prefix: "alias", removeExtension: false })}";
-import AuthFormError from "${formatFilePath(`components/auth/AuthFormError`, { prefix: "alias", removeExtension: false })}";
+import { Label } from "${formatFilePath(`components/ui/label`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import { Input } from "${formatFilePath(`components/ui/input`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import { Button } from "${formatFilePath(`components/ui/button`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import AuthFormError from "${formatFilePath(`components/auth/AuthFormError`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
 
 
 export default function SignUpPage() {
@@ -133,9 +148,15 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useFormStatus } from "react-dom";
 
-import { signUpAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signUpAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
-import AuthFormError from "${formatFilePath(lucia.formErrorComponent, { prefix: "alias", removeExtension: true })}";
+import AuthFormError from "${formatFilePath(lucia.formErrorComponent, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
 export default function SignUpPage() {
   const [state, formAction] = useFormState(signUpAction, {
@@ -213,12 +234,27 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useFormStatus } from "react-dom";
 
-import { signInAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signInAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
-import { Label } from "${formatFilePath(`components/ui/label`, { prefix: "alias", removeExtension: false })}";
-import { Input } from "${formatFilePath(`components/ui/input`, { prefix: "alias", removeExtension: false })}";
-import { Button } from "${formatFilePath(`components/ui/button`, { prefix: "alias", removeExtension: false })}";
-import AuthFormError from "${formatFilePath(`components/auth/AuthFormError`, { prefix: "alias", removeExtension: false })}";
+import { Label } from "${formatFilePath(`components/ui/label`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import { Input } from "${formatFilePath(`components/ui/input`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import { Button } from "${formatFilePath(`components/ui/button`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
+import AuthFormError from "${formatFilePath(`components/auth/AuthFormError`, {
+      prefix: "alias",
+      removeExtension: false,
+    })}";
 
 export default function SignInPage() {
   const [state, formAction] = useFormState(signInAction, {
@@ -272,9 +308,15 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useFormStatus } from "react-dom";
 
-import { signInAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signInAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
-import AuthFormError from "${formatFilePath(lucia.formErrorComponent, { prefix: "alias", removeExtension: true })}";
+import AuthFormError from "${formatFilePath(lucia.formErrorComponent, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
 export default function SignInPage() {
   const [state, formAction] = useFormState(signInAction, {
@@ -406,7 +448,10 @@ const generateUserServerActions = () => {
 import { revalidatePath } from "next/cache";
 import { redirect } from 'next/navigation'
 
-import { db } from "${formatFilePath(dbIndexPath, { removeExtension: true, prefix: "alias" })}";
+import { db } from "${formatFilePath(dbIndexPath, {
+      removeExtension: true,
+      prefix: "alias",
+    })}";
 
 import { Argon2id } from 'oslo/password'
 import { generateId } from 'lucia'
@@ -548,7 +593,10 @@ import { Argon2id } from "oslo/password";
 import { lucia, validateRequest } from "../auth/lucia";
 import { generateId } from "lucia";
 import { eq } from "drizzle-orm";
-import { db } from "${formatFilePath(dbIndexPath, { removeExtension: true, prefix: "alias" })}";
+import { db } from "${formatFilePath(dbIndexPath, {
+      removeExtension: true,
+      prefix: "alias",
+    })}";
 
 import {
   genericError,
@@ -765,7 +813,10 @@ export const validateAuthFormData = (
 import { cache } from 'react'
 
 import { type Session, type User, Lucia } from 'lucia'
-import { db } from "${formatFilePath(dbIndexPath, { prefix: "alias", removeExtension: true })}";
+import { db } from "${formatFilePath(dbIndexPath, {
+    prefix: "alias",
+    removeExtension: true,
+  })}";
 
 ${mappings.import}
 
@@ -846,7 +897,10 @@ const generateUpdatedSignoutButton = (withShadcn: boolean) => {
 
 import { Button } from "../ui/button";
 import { useFormStatus } from "react-dom";
-import { signOutAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signOutAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
 export default function SignOutBtn() {
   return (
@@ -869,7 +923,10 @@ const Btn = () => {
     return `"use client";
 
 import { useFormStatus } from "react-dom";
-import { signOutAction } from "${formatFilePath(lucia.usersActions, { prefix: "alias", removeExtension: true })}";
+import { signOutAction } from "${formatFilePath(lucia.usersActions, {
+      prefix: "alias",
+      removeExtension: true,
+    })}";
 
 export default function SignOutBtn() {
   return (

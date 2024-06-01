@@ -29,7 +29,7 @@ export const addLucia = async () => {
     readConfigFile();
 
   const {
-    generateViewsAndComponents,
+    // generateViewsAndComponents,
     generateAuthDirFiles,
     generateUserServerActions,
   } = luciaGenerators;

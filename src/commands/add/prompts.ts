@@ -12,9 +12,6 @@ import {
   PackageChoice,
 } from "../../types.js";
 import { DBProviders } from "../init/utils.js";
-import { AuthProvider, AuthProviders } from "./auth/next-auth/utils.js";
-import { readConfigFile } from "../../utils.js";
-import { consola } from "consola";
 
 const nullOption = { name: "None", value: null };
 
