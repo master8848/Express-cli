@@ -590,6 +590,7 @@ export const installDependencies = async (
         // "@t3-oss/env-nextjs",
         "zod",
         "nanoid",
+
         ...dbSpecificPackage.regular,
       ],
       dev: ["drizzle-kit", "tsx", "dotenv", ...dbSpecificPackage.dev],
@@ -727,20 +728,21 @@ export async function updateTsConfigTarget() {
     }
 
     // Parse the content as JSON
-    const tsConfig = JSON.parse(stripJsonComments(data));
+    const tsConfig = JSON.parse(
+      stripJsonComments(data, {
+        whitespace: false,
+        trailingCommas: false,
+      })
+    );
 
     // Modify the target property
     tsConfig.compilerOptions.target = "esnext";
-    tsConfig.compilerOptions.baseUrl = "./";
 
     // Convert the modified object back to a JSON string
     const updatedContent = JSON.stringify(tsConfig, null, 2); // 2 spaces indentation
 
     // Write the updated content back to the file
     replaceFile(tsConfigPath, updatedContent);
-    // consola.success(
-    //   "Updated tsconfig.json target to esnext to support Drizzle-Kit."
-    // );
   });
 }
 

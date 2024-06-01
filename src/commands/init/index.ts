@@ -12,19 +12,16 @@ import chalk from "chalk";
 export async function initProject(options?: InitOptions) {
   const packageJsonExists = existsSync("package.json");
   if (!packageJsonExists) {
-    const newPackage = `
-    {
-      "name": "test",
-      "version": "1.0.0",
-      "main": "index.js",
-      "scripts": {
-        
-      },
-      "keywords": [],
-      "author": "",
-      "license": "ISC",
-      "description": ""
-    }`;
+    const newPackage = JSON.stringify({
+      name: "test",
+      version: "1.0.0",
+      main: "index.js",
+      scripts: {},
+      keywords: [],
+      author: "",
+      license: "ISC",
+      description: "",
+    });
     await writeFileSync("package.json", newPackage);
   }
   console.clear();
@@ -50,28 +47,25 @@ export async function initProject(options?: InitOptions) {
 
   const tsConfigExists = existsSync("tsconfig.json");
   if (!tsConfigExists) {
-    const newTs = `{
-      "compilerOptions": {
-        "skipLibCheck": true,
-        "module": "ESNext",
-        "moduleResolution": "bundler",
-        "target": "ESNext",
-        "isolatedModules": true,
-        "esModuleInterop": true,
-        "noEmit": true,
-        "allowImportingTsExtensions": true,
-        "outDir": "dist",
-        "lib": [ "esnext" ],
-        "types": [ "node" ],
-        "baseUrl": "./",
+    const newTs = JSON.stringify({
+      compilerOptions: {
+        skipLibCheck: true,
+        module: "ESNext",
+        moduleResolution: "bundler",
+        target: "ESNext",
+        isolatedModules: true,
+        esModuleInterop: true,
+        noEmit: true,
+        allowImportingTsExtensions: true,
+        outDir: "dist",
+        lib: ["esnext"],
+        types: ["node"],
+        baseUrl: "./",
       },
-      "exclude": [ "node_modules" ],
-      "include": [
-        "src/**/*.ts",
-        "bin/*.ts"
-      ]
-    }
-    `;
+      exclude: ["node_modules"],
+      include: ["src/**/*.ts", "bin/*.ts"],
+    });
+
     await writeFileSync("tsconfig.json", newTs);
   }
   let alias: string = "@";
