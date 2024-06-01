@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, select } from "@inquirer/prompts";
+import { checkbox, confirm, input, select, rawlist } from "@inquirer/prompts";
 import { consola } from "consola";
 import pluralize from "pluralize";
 import {
@@ -55,10 +55,10 @@ export type TResource =
 
 type TResourceGroup = "model" | "controller" | "view";
 
+let resourcesRequested: TResource[] = [];
 async function askForResourceType() {
   const { packages, orm } = readConfigFile();
-
-  let resourcesRequested: TResource[] = [];
+  if (resourcesRequested.length) return resourcesRequested;
   let viewRequested: TResource;
   let controllersRequested: TResource[];
   const resourcesTypesRequested = (await checkbox({
@@ -142,22 +142,30 @@ async function askForFields(orm: ORMType, dbType: DBType, tableName: string) {
   while (addMore) {
     const currentSchemas = getCurrentSchemas();
 
-    const baseFieldTypeChoices = Object.keys(
-      createOrmMappings()[orm][dbType].typeMappings
-    )
-      .filter((field) => field !== "id")
-      .map((field) => {
-        return { name: field.toLowerCase(), value: field };
-      });
+    const baseFieldTypeChoices = [];
+    const baseFieldTypeChoicesRmRef = [];
+    Object.keys(createOrmMappings()[orm][dbType].typeMappings).forEach(
+      (field, index) => {
+        if (field == "id") return;
+        baseFieldTypeChoices.push({
+          name: index + " " + field.toLowerCase(),
+          value: field,
+        });
+        field.toLowerCase() !== "references" &&
+          baseFieldTypeChoicesRmRef.push({
+            name:
+              baseFieldTypeChoicesRmRef.length + 1 + " " + field.toLowerCase(),
+            value: field,
+          });
+      }
+    );
 
     const removeReferenceOption =
       currentSchemas.length === 0 ||
       (currentSchemas.length === 1 &&
         currentSchemas[0] === toCamelCase(tableName));
     const fieldTypeChoices = removeReferenceOption
-      ? baseFieldTypeChoices.filter(
-          (field) => field.name.toLowerCase() !== "references"
-        )
+      ? baseFieldTypeChoicesRmRef
       : baseFieldTypeChoices;
 
     const fieldType = (await select({
@@ -210,7 +218,7 @@ async function askForFields(orm: ORMType, dbType: DBType, tableName: string) {
 
     const continueAdding = await confirm({
       message: "Would you like to add another field?",
-      default: false,
+      default: true,
     });
 
     addMore = continueAdding;
@@ -267,7 +275,7 @@ async function promptUserForSchema(config: Config, resourceType: TResource[]) {
   const indexedField = await askForIndex(fields);
   const includeTimestamps = true;
   let belongsToUser: boolean = false;
-  if (resourceType.includes("model") && config.auth !== null) {
+  if (resourceType.includes("model") && !!config.auth) {
     belongsToUser = await askIfBelongsToUser();
   }
   return {
@@ -383,6 +391,10 @@ export async function buildSchema() {
     // would also need extra stuff like urls
     // TODO
 
+    // const schemas = formatSchemaForGeneration(schema);
+
+    await writeFileSync("schema.com", JSON.stringify(schema));
+
     const schemas = formatSchemaForGeneration(schema);
     await SchemaToResourceGenerator(schemas);
     printGenerateNextSteps(schema, resourceType);
@@ -399,27 +411,29 @@ export async function SchemaToResourceGenerator(schemas) {
     await generateResources(schema, resourceType);
   }
 }
-export const userData = {
-  tableName: "users",
-  fields: [
-    {
-      name: "name",
-      type: "text",
-      notNull: true,
-    },
-    {
-      name: "email",
-      type: "text",
-      notNull: true,
-    },
-    {
-      name: "password",
-      type: "text",
-      notNull: true,
-    },
-  ],
-  index: null,
-  belongsToUser: false,
-  includeTimestamps: true,
-  children: [],
-};
+export const userData = [
+  {
+    tableName: "users",
+    fields: [
+      {
+        name: "name",
+        type: "text",
+        notNull: true,
+      },
+      {
+        name: "email",
+        type: "text",
+        notNull: true,
+      },
+      {
+        name: "password",
+        type: "text",
+        notNull: true,
+      },
+    ],
+    index: null,
+    belongsToUser: false,
+    includeTimestamps: true,
+    children: [],
+  },
+];

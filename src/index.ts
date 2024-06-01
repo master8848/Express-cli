@@ -19,12 +19,16 @@ addCommonOptions(program.command("init"))
   .action(initProject);
 
 program
-  .command("generate")
+  .command("gn")
   .description("Generate a new resource")
   .action(buildSchema);
 
-addCommonOptions(program.command("add"))
-  .description("Add and setup additional packages")
+// addCommonOptions(program.command("add"))
+//   .description("Add and setup additional packages")
+//   .action(addPackage);
+
+addCommonOptions(program.command("rm"))
+  .description("Remove any schema")
   .action(addPackage);
 
 program.parse(process.argv);

@@ -162,7 +162,6 @@ export const updateRootSchema = (
       tableNames = "users, accounts, sessions, verificationTokens";
       break;
     case "clerk":
-      break;
     case "kinde":
       break;
     case "lucia":

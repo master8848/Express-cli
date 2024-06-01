@@ -1,4 +1,3 @@
-import { confirm, select } from "@inquirer/prompts";
 import { DBProvider, DBType, InitOptions } from "../../../../types.js";
 import {
   addPackageToConfig,
@@ -12,9 +11,7 @@ import {
   createDotEnv,
   createDrizzleConfig,
   createIndexTs,
-  createInitSchema,
   createMigrateTs,
-  createQueriesAndMutationsFolders,
   installDependencies,
   updateTsConfigTarget,
 } from "./generators.js";
@@ -46,13 +43,13 @@ export const addDrizzle = async (
 
   // create all the files here
 
-  if (includeExampleModel) {
-    createInitSchema(libPath, dbType);
-    createQueriesAndMutationsFolders(libPath, dbType);
-  } else {
-    createFolder(`${hasSrc ? "src/" : ""}lib/db/schema`);
-    createFolder(`${hasSrc ? "src/" : ""}lib/api`);
-  }
+  // if (includeExampleModel) {
+  //   // createInitSchema(libPath, dbType);
+  //   // createQueriesAndMutationsFolders(libPath, dbType);
+  // } else {
+  createFolder(`${hasSrc ? "src/" : ""}lib/db/schema`);
+  createFolder(`${hasSrc ? "src/" : ""}lib/api`);
+  // }
 
   // dependent on dbtype and driver, create
   createIndexTs(dbProvider);

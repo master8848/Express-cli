@@ -402,97 +402,6 @@ runMigrate().catch((err) => {
   );
 };
 
-export const createInitSchema = (libPath?: string, dbType?: DBType) => {
-  const { packages, driver, rootPath } = readConfigFile();
-  const {
-    shared: {
-      auth: { authSchema },
-    },
-  } = getFilePaths();
-  const path = `${rootPath}lib/db/schema/computers.ts`;
-  const dbDriver = dbType ?? driver;
-  let initModel = "";
-  switch (dbDriver) {
-    case "pg":
-      initModel = `import { pgTable, serial, text, integer } from "drizzle-orm/pg-core";${
-        packages.includes("next-auth")
-          ? `\nimport { users } from "${formatFilePath(authSchema, {
-              removeExtension: true,
-              prefix: "alias",
-            })}";`
-          : ""
-      }
-
-export const computers = pgTable("computers", {
-  id: serial("id").primaryKey(),
-  brand: text("brand").notNull(),
-  cores: integer("cores").notNull(),${
-    packages.includes("next-auth")
-      ? '\nuserId: integer("user_id").notNull().references(() => users.id)'
-      : ""
-  }
-});`;
-      break;
-
-    case "mysql":
-      initModel = `import { mysqlTable, serial, varchar, int } from "drizzle-orm/mysql-core";${
-        packages.includes("next-auth")
-          ? `\nimport { users } from "${formatFilePath(authSchema, {
-              removeExtension: true,
-              prefix: "alias",
-            })}";`
-          : ""
-      }
-
-export const computers = mysqlTable("computers", {
-  id: serial("id").primaryKey(),
-  brand: varchar("brand", {length: 256}).notNull(),
-  cores: int("cores").notNull(),${
-    packages.includes("next-auth")
-      ? '\nuserId: integer("user_id").notNull().references(() => users.id)'
-      : ""
-  }
-});`;
-      break;
-    case "sqlite":
-      initModel = `import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";${
-        packages.includes("next-auth")
-          ? `\nimport { users } from "${formatFilePath(authSchema, {
-              removeExtension: true,
-              prefix: "alias",
-            })}";`
-          : ""
-      }
-
-export const computers = sqliteTable("computers", {
-  id: integer("id").primaryKey(),
-  brand: text("brand").notNull(),
-  cores: integer("cores").notNull(),${
-    packages.includes("next-auth")
-      ? '\nuserId: integer("user_id").notNull().references(() => users.id)'
-      : ""
-  }
-});`;
-      break;
-    default:
-      break;
-  }
-  const sharedImports = `import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';`;
-  const sharedSchemas = `// Schema for CRUD - used to validate API requests
-export const insertComputerSchema = createInsertSchema(computers);
-export const selectComputerSchema = createSelectSchema(computers);
-export const computerIdSchema = selectComputerSchema.pick({ id: true });
-export const updateComputerSchema = selectComputerSchema;
-
-export type Computer = z.infer<typeof selectComputerSchema>;
-export type NewComputer = z.infer<typeof insertComputerSchema>;
-export type ComputerId = z.infer<typeof computerIdSchema>["id"];`;
-
-  const finalDoc = `${sharedImports}\n${initModel}\n${sharedSchemas}`;
-  createFile(path, finalDoc);
-};
-
 export const addScriptsToPackageJson = (
   libPath: string,
   driver: DBType,
@@ -595,7 +504,7 @@ export const createDotEnv = (
 
   const envPath = path.resolve(".env");
   const envExists = fs.existsSync(envPath);
-  if (!process.envExists)
+  if (!envExists)
     createFile(
       ".env",
       `${
@@ -639,10 +548,10 @@ export const addToDotEnv = (
     prefix: "rootPath",
   });
   const envMjsExists = fs.existsSync(envmjsfilePath);
-  if (!process.envMjsExists && orm === null) {
+  if (!envMjsExists && orm === null) {
     return;
   }
-  if (!process.envMjsExists)
+  if (!envMjsExists)
     createFile(
       envmjsfilePath,
       generateEnvMjs(preferredPackageManager, orm, excludeDbUrlIfBlank)
@@ -717,112 +626,6 @@ export async function updateTsConfigTarget() {
     // Write the updated content back to the file
     replaceFile(tsConfigPath, updatedContent);
   });
-}
-
-export function createQueriesAndMutationsFolders(
-  libPath: string,
-  driver: DBType
-) {
-  const dbIndex = getDbIndexPath("drizzle");
-  // create computers queries
-  const query = `import { db } from "${formatFilePath(dbIndex, {
-    removeExtension: true,
-    prefix: "alias",
-  })}";
-import { eq } from "drizzle-orm";
-import { computerIdSchema, computers, ComputerId } from "${formatFilePath(
-    "lib/db/schema/computers.ts",
-    { removeExtension: true, prefix: "alias" }
-  )}";
-
-export const getComputers = async () => {
-  const c = await db.select().from(computers);
-  return { computers: c };
-};
-
-export const getComputerById = async (id: ComputerId) => {
-  const { id: computerId } = computerIdSchema.parse({ id });
-  const [c] = await db.select().from(computers).where(eq(computers.id, computerId));
-
-  return { computer: c };
-};`;
-
-  const mutation = `import { db } from "${formatFilePath(dbIndex, {
-    removeExtension: true,
-    prefix: "alias",
-  })}";
-import { eq } from "drizzle-orm";
-import { NewComputer, insertComputerSchema, computers, computerIdSchema, ComputerId } from "${formatFilePath(
-    "lib/db/schema/computers.ts",
-    { removeExtension: true, prefix: "alias" }
-  )}";
-
-export const createComputer = async (computer: NewComputer) => {
-  const newComputer = insertComputerSchema.parse(computer);
-  try {
-    ${
-      driver === "mysql" ? "" : "const [c] = "
-    } await db.insert(computers).values(newComputer)${
-    driver === "mysql"
-      ? "\n    return { success: true }"
-      : ".returning();\n    return { computer: c }"
-  }
-  } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again";
-    console.error(message);
-    throw { error: message };
-  }
-};
-
-export const updateComputer = async (id: ComputerId, computer: NewComputer) => {
-  const { id: computerId } = computerIdSchema.parse({ id });
-  const newComputer = insertComputerSchema.parse(computer);
-  try {
-    ${driver === "mysql" ? "" : "const [c] = "}await db
-     .update(computers)
-     .set(newComputer)
-     .where(eq(computers.id, computerId!))${
-       driver === "mysql"
-         ? "\n    return { success: true };"
-         : ".returning();\n    return { computer: c };"
-     }
-  } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again"
-    console.error(message);
-    throw { error: message };
-  }
-};
-
-export const deleteComputer = async (id: ComputerId) => {
-  const { id: computerId } = computerIdSchema.parse({ id });
-  try {
-    ${
-      driver === "mysql" ? "" : "const [c] = "
-    }await db.delete(computers).where(eq(computers.id, computerId!))${
-    driver === "mysql"
-      ? "\n    return { success: true };"
-      : ".returning();\n    return { computer: c };"
-  }
-  } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again"
-    console.error(message);
-    throw { error: message };
-  }
-};`;
-  createFile(
-    formatFilePath("lib/api/computers/queries.ts", {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    query
-  );
-  createFile(
-    formatFilePath("lib/api/computers/mutations.ts", {
-      prefix: "rootPath",
-      removeExtension: false,
-    }),
-    mutation
-  );
 }
 
 const generateEnvMjs = (
