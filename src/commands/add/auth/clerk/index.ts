@@ -1,5 +1,5 @@
 // 1. Mount <ClerkProvider />
-// 2. Add Env keys in env.mjs too
+// 2. Add Env keys in process.env.mjs too
 // 3. Add middleware
 // 4. Scaffold Signup and Signin pages
 // 5. Add UserButton to Page.tsx

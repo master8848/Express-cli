@@ -162,7 +162,7 @@ export type UsernameAndPassword = z.infer<typeof authenticationSchema>;
       "{ neon, neonConfig, Pool }"
     );
     const contentsWithPool = contentsImportsUpdated.concat(
-      "\nexport const pool = new Pool({ connectionString: env.DATABASE_URL });"
+      "\nexport const pool = new Pool({ connectionString: process.env.DATABASE_URL });"
     );
     replaceFile(dbTsPath, contentsWithPool);
   }

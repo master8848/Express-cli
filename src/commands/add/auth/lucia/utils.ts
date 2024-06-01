@@ -199,7 +199,7 @@ import * as schema from "./schema";
  
 // create the connection
 export const connection = connect({
-  url: env.DATABASE_URL
+  url: process.env.DATABASE_URL
 });
  
 export const db = drizzle(connection, { schema });

@@ -146,7 +146,7 @@ const handler = (req: NextRequest) =>
     router: appRouter,
     createContext: () => createContext(req),
     onError:
-      env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development"
         ? ({ path, error }) => {
             console.error(
               \`❌ tRPC failed on \${path ?? "<no-path>"}: \${error.message}\`,
@@ -289,7 +289,7 @@ export const api = createTRPCProxyClient<typeof appRouter>({
   links: [
     loggerLink({
       enabled: (op) =>
-        env.NODE_ENV === "development" ||
+        process.env.NODE_ENV === "development" ||
         (op.direction === "down" && op.result instanceof Error),
     }),
     /**

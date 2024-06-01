@@ -56,13 +56,13 @@ export default {
   dbCredentials: {
     ${
       provider === "turso"
-        ? `url: env.DATABASE_URL,
-    authToken: env.DATABASE_AUTH_TOKEN`
+        ? `url: process.env.DATABASE_URL,
+    authToken: process.env.DATABASE_AUTH_TOKEN`
         : provider === "better-sqlite3"
-        ? "url: env.DATABASE_URL"
+        ? "url: process.env.DATABASE_URL"
         : provider === "mysql-2" || provider === "planetscale"
-        ? "uri: env.DATABASE_URL"
-        : "connectionString: env.DATABASE_URL"
+        ? "uri: process.env.DATABASE_URL"
+        : "connectionString: process.env.DATABASE_URL"
     }${provider === "vercel-pg" ? '.concat("?sslmode=require")' : ""},
   }
 } satisfies Config;`
@@ -93,7 +93,7 @@ import { Pool } from "pg"
 import 'dotenv/config'
 
 export const pool = new Pool({
-  connectionString: env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 });
 export const db = drizzle(pool);`;
       break;
@@ -121,7 +121,7 @@ export const db = drizzle(sql)
 import postgres from 'postgres'
 import 'dotenv/config'
  
-const connectionString = env.DATABASE_URL
+const connectionString = process.env.DATABASE_URL
 const client = postgres(connectionString)
 export const db = drizzle(client);
 `;
@@ -152,7 +152,7 @@ import 'dotenv/config'
  
 // create the connection
 export const connection = connect({
-  url: env.DATABASE_URL
+  url: process.env.DATABASE_URL
 });
  
 export const db = drizzle(connection);
@@ -182,8 +182,8 @@ import { createClient } from "@libsql/client";
 import 'dotenv/config'
  
 export const sqlite = createClient({
-  url: env.DATABASE_URL,
-  authToken: env.DATABASE_AUTH_TOKEN,
+  url: process.env.DATABASE_URL,
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
 export const db = drizzle(sqlite);
@@ -244,7 +244,7 @@ import { Client } from "pg";
 `;
       connectionLogic = `
 const client = new Client({
-  connectionString: env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 });
 
 await client.connect();
@@ -317,7 +317,7 @@ import { migrate } from "drizzle-orm/planetscale-serverless/migrator";
 import { connect } from "@planetscale/database";
 `;
       connectionLogic = `
-const connection = connect({ url: env.DATABASE_URL });
+const connection = connect({ url: process.env.DATABASE_URL });
  
 const db = drizzle(connection);
 `;
@@ -353,8 +353,8 @@ import { migrate } from "drizzle-orm/libsql/migrator";
 `;
       connectionLogic = `
   const client = createClient({
-    url: env.DATABASE_URL,
-    authToken: env.DATABASE_AUTH_TOKEN,
+    url: process.env.DATABASE_URL,
+    authToken: process.env.DATABASE_AUTH_TOKEN,
   });
   const db = drizzle(client);
 `;
@@ -630,7 +630,7 @@ export const addToDotEnv = (
   } else {
     fs.writeFileSync(envPath, newData);
   }
-  // handling env.mjs
+  // handling process.env.mjs
   const envmjsfilePath = formatFilePath(envMjs, {
     removeExtension: false,
     prefix: "rootPath",
