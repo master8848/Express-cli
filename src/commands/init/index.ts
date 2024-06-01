@@ -1,7 +1,6 @@
 import { select } from "@inquirer/prompts";
-import { createConfigFile, sendEvent } from "../../utils.js";
+import { createConfigFile } from "../../utils.js";
 import { InitOptions, PMType } from "../../types.js";
-import { consola } from "consola";
 import { addPackage } from "../add/index.js";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
@@ -37,9 +36,9 @@ export async function initProject(options?: InitOptions) {
     ((await select({
       message: "Please pick your preferred package manager",
       choices: [
+        { name: "PNPM", value: "pnpm" },
         { name: "NPM", value: "npm" },
         { name: "Yarn", value: "yarn" },
-        { name: "PNPM", value: "pnpm" },
         { name: "Bun", value: "bun" },
       ],
     })) as PMType);

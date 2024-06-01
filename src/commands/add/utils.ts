@@ -245,7 +245,7 @@ export const printNextSteps = (
     promptResponses.miscPackages.includes("stripe")
       ? stripe
       : []),
-    "If you have any issues, please open an issue on GitHub\n  (https://github.com/nicoalbanese/sksn/issues)",
+    "If you have any issues, please open an issue on GitHub\n  (https://github.com/master8848/sksn/issues)",
   ];
 
   showNextSteps(packagesInstalledList, nextSteps, notes, duration);
@@ -273,7 +273,7 @@ export const showNextSteps = (
   notes: string[],
   duration: number
 ) => {
-  const nextStepsFormatted = `🚀 Thanks for using sksn to kickstart your Next.js app!
+  const nextStepsFormatted = `🚀 Thanks for using sksn to kickstart your express app!
 
 ${formatInstallList(installList)}
 

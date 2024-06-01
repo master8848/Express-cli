@@ -11,11 +11,7 @@ import {
 } from "../../types.js";
 import { createOrmMappings } from "./generators/model/utils.js";
 import { scaffoldAPIRoute } from "./generators/apiRoute.js";
-import {
-  readConfigFile,
-  sendEvent,
-  updateConfigFileAfterUpdate,
-} from "../../utils.js";
+import { readConfigFile, updateConfigFileAfterUpdate } from "../../utils.js";
 import { scaffoldTRPCRoute } from "./generators/trpcRoute.js";
 import { addPackage, spinner } from "../add/index.js";
 import { initProject } from "../init/index.js";
@@ -364,33 +360,6 @@ export const formatSchemaForGeneration = (schema?: Schema) => {
   return getInidividualSchemas(schema);
 };
 
-const anonymiseSchemas = (schemas: ExtendedSchema[]): ExtendedSchema[] => {
-  const anonymise = (
-    schema: ExtendedSchema,
-    prefix: string
-  ): ExtendedSchema => {
-    return {
-      ...schema,
-      tableName: `${prefix}Table`,
-      parents: schema.parents
-        ? schema.parents.map((_, i) => `${prefix}Parent${i + 1}`)
-        : [],
-      children: schema.children
-        ? schema.children.map((c, i) =>
-            anonymise(c as ExtendedSchema, `${prefix}Child${i + 1}`)
-          )
-        : [],
-      fields: schema.fields.map((f, i) => ({
-        ...f,
-        name: `${prefix}Field${i + 1}`,
-        references: ``,
-      })),
-    };
-  };
-
-  return schemas.map((s, i) => anonymise(s, `Schema${i + 1}`));
-};
-
 async function generateResources(
   schema: ExtendedSchema,
   resourceType: TResource[]
@@ -421,11 +390,6 @@ export async function buildSchema() {
     // TODO
 
     const schemas = formatSchemaForGeneration(schema);
-
-    await sendEvent("generate", {
-      schemas: JSON.stringify(anonymiseSchemas(schemas)),
-      resources: resourceType,
-    });
 
     for (let schema of schemas) {
       await generateResources(schema, resourceType);

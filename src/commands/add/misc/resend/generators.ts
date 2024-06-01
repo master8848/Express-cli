@@ -210,10 +210,7 @@ const generateEmailIndexTs = () => {
     shared: { init },
   } = getFilePaths();
   return `import { Resend } from "resend";
-import { env } from "${formatFilePath(init.envMjs, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
+  import 'dotenv/config'
 
 export const resend = new Resend(env.RESEND_API_KEY);
 `;

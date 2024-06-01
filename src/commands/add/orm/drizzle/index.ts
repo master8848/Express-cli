@@ -5,7 +5,6 @@ import {
   createFolder,
   readConfigFile,
   updateConfigFile,
-  wrapInParenthesis,
 } from "../../../../utils.js";
 import {
   addScriptsToPackageJson,

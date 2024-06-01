@@ -48,54 +48,6 @@ export const addLucia = async () => {
     updatedSignOutButton: string;
   };
 
-  if (componentLib === "shadcn-ui") {
-    // await installShadcnUI(packages);
-    // await installShadcnUIComponents(["input", "label"]);
-    viewsAndComponents = generateViewsAndComponents(true);
-  } else {
-    viewsAndComponents = generateViewsAndComponents(false);
-  }
-  createFile(
-    formatFilePath(lucia.signInPage, {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    viewsAndComponents.signInPage
-  );
-  createFile(
-    formatFilePath(lucia.signUpPage, {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    viewsAndComponents.signUpPage
-  );
-  createFile(
-    formatFilePath(lucia.formErrorComponent, {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    viewsAndComponents.authFormErrorComponent
-  );
-  replaceFile(
-    formatFilePath(shared.init.dashboardRoute, {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    viewsAndComponents.homePage
-  );
-  createFile(
-    rootPath.concat("app/loading.tsx"),
-    viewsAndComponents.loadingPage
-  );
-
-  createFile(
-    formatFilePath(lucia.signOutButtonComponent, {
-      removeExtension: false,
-      prefix: "rootPath",
-    }),
-    viewsAndComponents.updatedSignOutButton
-  );
-
   // add server actions
   createFile(
     formatFilePath(lucia.usersActions, {

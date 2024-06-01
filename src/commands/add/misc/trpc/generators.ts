@@ -130,10 +130,7 @@ import { createTRPCContext } from "${formatFilePath(trpc.trpcContext, {
     prefix: "alias",
     removeExtension: true,
   })}";
-import { env } from "${formatFilePath(shared.init.envMjs, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
+import 'dotenv/config'
 
 
 const createContext = async (req: NextRequest) => {
@@ -261,10 +258,7 @@ import { appRouter } from "${formatFilePath(trpc.rootRouter, {
     prefix: "alias",
     removeExtension: true,
   })}";
-import { env } from "${formatFilePath(shared.init.envMjs, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
+import 'dotenv/config'
 import { createTRPCContext } from "./context";
 
 import {

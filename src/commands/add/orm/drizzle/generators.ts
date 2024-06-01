@@ -47,10 +47,7 @@ export const createDrizzleConfig = (libPath: string, provider: DBProvider) => {
   createFile(
     "drizzle.config.ts",
     `import type { Config } from "drizzle-kit";
-import { env } from "${formatFilePath(envMjs, {
-      removeExtension: false,
-      prefix: "alias",
-    })}";
+     import 'dotenv/config'
 
 export default {
   schema: "./${libPath}/db/schema",
@@ -85,10 +82,7 @@ export const createIndexTs = (dbProvider: DBProvider) => {
     case "postgresjs":
       indexTS = `import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
 
 export const client = postgres(env.DATABASE_URL);
 export const db = drizzle(client);`;
@@ -96,10 +90,7 @@ export const db = drizzle(client);`;
     case "node-postgres":
       indexTS = `import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg"
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
 
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,
@@ -109,10 +100,7 @@ export const db = drizzle(pool);`;
     case "neon":
       indexTS = `import { neon, neonConfig, NeonQueryFunction } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
 
 neonConfig.fetchConnectionCache = true;
  
@@ -123,10 +111,7 @@ export const db = drizzle(sql);
     case "vercel-pg":
       indexTS = `import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
  
 export const db = drizzle(sql)
 `;
@@ -134,10 +119,7 @@ export const db = drizzle(sql)
     case "supabase":
       indexTS = `import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
  
 const connectionString = env.DATABASE_URL
 const client = postgres(connectionString)
@@ -166,10 +148,7 @@ export const db = drizzle(rdsClient, {
     case "planetscale":
       indexTS = `import { drizzle } from "drizzle-orm/planetscale-serverless";
 import { connect } from "@planetscale/database";
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
  
 // create the connection
 export const connection = connect({
@@ -182,10 +161,7 @@ export const db = drizzle(connection);
     case "mysql-2":
       indexTS = `import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
  
 export const poolConnection = mysql.createPool(env.DATABASE_URL);
  
@@ -203,10 +179,7 @@ export const db: BetterSQLite3Database = drizzle(sqlite);
     case "turso":
       indexTS = `import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from "@libsql/client";
-import { env } from "${formatFilePath(envMjs, {
-        removeExtension: false,
-        prefix: "alias",
-      })}";
+import 'dotenv/config'
  
 export const sqlite = createClient({
   url: env.DATABASE_URL,
@@ -389,10 +362,7 @@ import { migrate } from "drizzle-orm/libsql/migrator";
     default:
       break;
   }
-  const template = `import { env } from "${formatFilePath(envMjs, {
-    removeExtension: false,
-    prefix: "alias",
-  })}";
+  const template = `import 'dotenv/config'
   ${imports}
 
 const runMigrate = async () => {

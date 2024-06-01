@@ -42,10 +42,7 @@ ${AuthDriver[orm].import}`
 import { DefaultSession, NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import { Adapter } from "next-auth/adapters";
-import { env } from "${formatFilePath(shared.init.envMjs, {
-    prefix: "alias",
-    removeExtension: false,
-  })}"
+import 'dotenv/config'
 ${providersToUse
   .map(
     (provider) =>
@@ -172,10 +169,7 @@ ${AuthDriver[orm].import}`
 import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import { redirect } from "next/navigation";
-import { env } from "${formatFilePath(shared.init.envMjs, {
-    prefix: "alias",
-    removeExtension: false,
-  })}"
+import 'dotenv/config'
 ${providersToUse
   .map(
     (provider) =>

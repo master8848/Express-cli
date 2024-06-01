@@ -1,14 +1,11 @@
 import { confirm } from "@inquirer/prompts";
-import { readConfigFile, sendEvent, updateConfigFile } from "../../utils.js";
+import { readConfigFile, updateConfigFile } from "../../utils.js";
 import { addDrizzle } from "./orm/drizzle/index.js";
-import { addTrpc } from "./misc/trpc/index.js";
 import { consola } from "consola";
 import { initProject } from "../init/index.js";
 import { addPrisma } from "./orm/prisma/index.js";
 import { ORMType, InitOptions } from "../../types.js";
-import { addResend } from "./misc/resend/index.js";
 import { addLucia } from "./auth/lucia/index.js";
-import { addStripe } from "./misc/stripe/index.js";
 import { checkForExistingPackages } from "../init/utils.js";
 
 import {
@@ -126,9 +123,7 @@ export const addPackage = async (
     }
 
     spinner.text = "Finishing configuration";
-    if (init === true) {
-      await sendEvent("init_config", {});
-    }
+
     spinner.succeed("Configuration complete");
 
     await installPackagesFromList();

@@ -194,10 +194,7 @@ export const updateDrizzleDbIndex = (provider: DBProvider) => {
   if (provider === "planetscale") {
     const replacementContent = `import { drizzle } from "drizzle-orm/planetscale-serverless";
 import { connect } from "@planetscale/database";
-import { env } from "${formatFilePath(shared.init.envMjs, {
-      removeExtension: false,
-      prefix: "alias",
-    })}";
+import 'dotenv/config'
 import * as schema from "./schema";
  
 // create the connection
