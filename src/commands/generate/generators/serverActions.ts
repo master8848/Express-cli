@@ -23,8 +23,7 @@ const generateRouteContent = (schema: Schema) => {
     tableNameKebabCase,
   } = formatTableName(tableName);
 
-  const template = `"use server";
-
+  const template = `
 import {
   create${tableNameSingularCapitalised},
   delete${tableNameSingularCapitalised},

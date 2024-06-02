@@ -72,7 +72,7 @@ const promptUser = async (options?: InitOptions): Promise<InitOptions> => {
 export const spinner = ora();
 
 export const addPackage = async (
-  options?: InitOptions,
+  options: InitOptions = {},
   init: boolean = false
 ) => {
   const initialConfig = readConfigFile();

@@ -17,7 +17,7 @@ const nullOption = { name: "None", value: null };
 
 export const askOrm = async (options: InitOptions) => {
   return (
-    options.orm ??
+    options?.orm ??
     ((await select({
       message: "Select an ORM to use:",
       choices: [...Packages.orm, new Separator(), nullOption],

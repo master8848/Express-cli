@@ -82,11 +82,9 @@ const generateImportStatement = (
     const uniqueTypes = getUniqueTypes(usedTypes, belongsToUser, dbType);
     return `${
       schema.includeTimestamps ? `import { sql } from "drizzle-orm";\n` : ""
-    }import { ${uniqueTypes
-      .join(", ")
-      .concat(
-        `, ${mappings.tableFunc}`
-      )}${schema.index ? ", uniqueIndex" : ""} } from "drizzle-orm/${dbType}-core";\nimport { createInsertSchema, createSelectSchema } from "drizzle-zod";\nimport { z } from "zod";\n${
+    }import { ${uniqueTypes.join(", ").concat(`, ${mappings.tableFunc}`)}${
+      schema.index ? ", uniqueIndex" : ""
+    } } from "drizzle-orm/${dbType}-core";\nimport { createInsertSchema, createSelectSchema } from "drizzle-zod";\nimport { z } from "zod";\n${
       referenceImports.length > 0 ? referenceImports.join("\n") : ""
     }${
       belongsToUser && provider !== "planetscale" && authSubType !== "managed"
@@ -99,7 +97,7 @@ const generateImportStatement = (
 import { type get${tableNameCapitalised} } from "${formatFilePath(
       shared.orm.servicesDir,
       { prefix: "alias", removeExtension: false }
-    )}/${tableNameCamelCase}/queries";
+    )}/${tableNameCamelCase}/service";
 
 import { nanoid${
       schema.includeTimestamps ? `, timestamps` : ""
@@ -147,8 +145,8 @@ const generateIndex = (schema: Schema) => {
     ${toCamelCase(
       index
     )}Index: uniqueIndex('${tableNameSingularSnake}_${index}_idx').on(${tableNameCamelCase}.${toCamelCase(
-      index
-    )}),
+        index
+      )}),
   }
 }`
     : "";
