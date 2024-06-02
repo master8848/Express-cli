@@ -173,10 +173,10 @@ export default function ${tableNameSingularCapitalised}List({ ${tableNameCamelCa
     <ul>
       {${tableNameFirstChar}.${tableNameCamelCase}.map((${tableNameSingular}) => (
         <${tableNameSingularCapitalised} ${tableNameSingular}={${tableNameSingular}} key={${
-          relations.length > 0
-            ? `${tableNameSingular}.${tableNameSingular}`
-            : tableNameSingular
-        }.id} />
+    relations.length > 0
+      ? `${tableNameSingular}.${tableNameSingular}`
+      : tableNameSingular
+  }.id} />
       ))}
     </ul>
   );
@@ -191,18 +191,18 @@ const ${tableNameSingularCapitalised} = ({ ${tableNameSingular} }: { ${tableName
             ? `${tableNameSingular}.${tableNameSingular}`
             : tableNameSingular
         }.${toCamelCase(schema.fields[0].name)}${
-          schema.fields[0].type === "date" ||
-          schema.fields[0].type === "timestamp" ||
-          schema.fields[0].type === "DateTime"
-            ? ".toString()"
-            : ""
-        }}</div>
+    schema.fields[0].type === "date" ||
+    schema.fields[0].type === "timestamp" ||
+    schema.fields[0].type === "DateTime"
+      ? ".toString()"
+      : ""
+  }}</div>
       </div>
       <${tableNameSingularCapitalised}Modal ${tableNameSingular}={${
-        relations.length > 0
-          ? `${tableNameSingular}.${tableNameSingular}`
-          : tableNameSingular
-      }} />
+    relations.length > 0
+      ? `${tableNameSingular}.${tableNameSingular}`
+      : tableNameSingular
+  }} />
     </li>
   );
 };
@@ -226,7 +226,7 @@ const EmptyState = () => {
 `;
 };
 
-const createformInputComponent = (field: DBField): string => {
+export const createformInputComponent = (field: DBField): string => {
   if (field.type.toLowerCase() == "boolean")
     return `<br />
             <FormControl>

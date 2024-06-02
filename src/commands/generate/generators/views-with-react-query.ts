@@ -32,12 +32,18 @@ import {
 import { addPackage } from "../../add/index.js";
 import { formatFilePath, getFilePaths } from "../../filePaths/index.js";
 import { ExtendedSchema, Schema } from "../types.js";
-import { formatTableName, toCamelCase } from "../utils.js";
+import {
+  defaultValueMappings,
+  formatTableName,
+  toCamelCase,
+  toNormalEnglish,
+} from "../utils.js";
 import { existsSync, readFileSync } from "fs";
 import { consola } from "consola";
 import { addToShadcnComponentList } from "../../add/utils.js";
+import { createformInputComponent } from "./views.js";
 
-export const scaffoldViewsAndComponentsWithServerActions = async (
+export const scaffoldViewsAndComponentsReactQuery = async (
   schema: ExtendedSchema
 ) => {
   const { packages } = readConfigFile();
@@ -101,40 +107,6 @@ export const scaffoldViewsAndComponentsWithServerActions = async (
       createOptimisticListHook(schema)
     );
 
-    // create tableName/[id]/page.tsx
-    createFile(
-      formatFilePath(
-        `app/(app)/${tableNameKebabCase}/[${tableNameSingular}Id]/page.tsx`,
-        { removeExtension: false, prefix: "rootPath" }
-      ),
-      createSubPage(schema, false)
-    );
-
-    // create subpage as child directory
-    if (schema.parents.length > 0) {
-      const baseUrl = schema.parents
-        .map((p) => {
-          const parent = formatTableName(p);
-          return `${parent.tableNameKebabCase}/[${parent.tableNameSingular}Id]/`;
-        })
-        .join("");
-      createFile(
-        formatFilePath(
-          `app/(app)/${baseUrl}${tableNameKebabCase}/[${tableNameSingular}Id]/page.tsx`,
-          { removeExtension: false, prefix: "rootPath" }
-        ),
-        createSubPage(schema, true)
-      );
-    }
-    // create tableName/[id]/OptimisticEntity.tsx
-    createFile(
-      formatFilePath(
-        `app/(app)/${tableNameKebabCase}/[${tableNameSingular}Id]/Optimistic${tableNameSingularCapitalised}.tsx`,
-        { removeExtension: false, prefix: "rootPath" }
-      ),
-      createOptimisticEntityForSubPage(schema)
-    );
-
     // install shadcn packages (button, dialog, form, input, label) - exec script: pnpm dlx shadcn-ui@latest add _
     // const baseComponents = ["button", "dialog", "form", "input", "label"];
     const baseComponents = ["dialog"];
@@ -174,7 +146,6 @@ const formatRelations = (relations: DBField[]) => {
       tableNameSingularCapitalised,
       tableNameSingular,
     } = formatTableName(relation.references);
-    const hasJoins = queryHasJoins(relation.references);
     const importStatementQueries = `import { get${tableNameCapitalised} } from "${formatFilePath(
       shared.orm.servicesDir.concat(`/${tableNameCamelCase}/queries.ts`),
       { prefix: "alias", removeExtension: true }
@@ -224,7 +195,7 @@ const formatRelations = (relations: DBField[]) => {
       tableNameSingularCapitalised,
       optimisticEntityRelation,
       optimisticFind,
-      hasJoins,
+      hasJoins: false,
       importStatementCompleteSchemaType,
       componentImportCompleteType,
       mapped,
@@ -238,7 +209,7 @@ const formatRelations = (relations: DBField[]) => {
     };
   });
 };
-
+//DONE
 const generateView = (schema: Schema) => {
   const {
     tableNameCamelCase,
@@ -334,10 +305,7 @@ const createListComponent = (schema: ExtendedSchema) => {
   const { shared } = getFilePaths();
   const relations = getRelations(schema.fields);
   const relationsFormatted = formatRelations(relations);
-  const hasJoins = queryHasJoins(schema.tableName);
-  const entityName = hasJoins
-    ? `${tableNameSingular}.${tableNameSingular}`
-    : tableNameSingular;
+  const entityName = tableNameSingular;
   const hasParents = schema.parents.length > 0;
   const parents = hasParents
     ? schema.parents.map((p) => formatTableName(p))
@@ -522,166 +490,6 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
 `;
 };
 
-const createformInputComponent = (
-  field: DBField,
-  tableName: string
-): string => {
-  const { tableNameSingular: entitySingular } = formatTableName(tableName);
-
-  const {
-    tableNameCamelCase: fieldName,
-    tableNameNormalEnglishCapitalised: fieldForLabel,
-  } = formatTableName(field.name);
-
-  if (field.type.toLowerCase() == "boolean")
-    return `<div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.${fieldName} ? "text-destructive" : "",
-          )}
-        >
-          ${fieldForLabel}
-        </Label>
-        <br />
-        <Checkbox defaultChecked={${`${entitySingular}?.${fieldName}`}} name={'${fieldName}'} className={cn(errors?.${fieldName} ? "ring ring-destructive" : "")} />
-        {errors?.${fieldName} ? (
-          <p className="text-xs text-destructive mt-2">{errors.${fieldName}[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>`;
-  if (field.type.toLowerCase() == "references") {
-    const referencesSingular = pluralize.singular(
-      toCamelCase(field.references)
-    );
-    const {
-      // tableNameNormalEnglishSingularLowerCase,
-      tableNameSingularCapitalised,
-      tableNameSingular,
-    } = formatTableName(field.references);
-    // const entity = queryHasJoins(toCamelCase(field.references))
-    //   ? `${referencesSingular}.${referencesSingular}`
-    //   : referencesSingular;
-    const entity = referencesSingular;
-    const referencesPlural = toCamelCase(field.references);
-    return `
-      {${tableNameSingular}Id ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.${fieldName} ? "text-destructive" : "",
-          )}
-        >
-          ${tableNameSingularCapitalised}
-        </Label>
-        <Select defaultValue={${entitySingular}?.${fieldName}} name="${fieldName}">
-          <SelectTrigger
-            className={cn(errors?.${fieldName} ? "ring ring-destructive" : "")}
-          >
-            <SelectValue placeholder="Select a ${referencesSingular}" />
-          </SelectTrigger>
-          <SelectContent>
-          {${referencesPlural}?.map((${referencesSingular}) => (
-            <SelectItem key={${entity}.id} value={${entity}.id.toString()}>
-              {${entity}.id}{/* TODO: Replace with a field from the ${referencesSingular} model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.${fieldName} ? (
-          <p className="text-xs text-destructive mt-2">{errors.${fieldName}[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }`;
-  }
-
-  if (
-    field.type == "date" ||
-    field.type == "timestamp" ||
-    field.type == "DateTime"
-  )
-    return `<div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.${fieldName} ? "text-destructive" : "",
-          )}
-        >
-          ${fieldForLabel}
-        </Label>
-        <br />
-        <Popover>
-          <Input
-            name="${fieldName}"
-            onChange={() => {}}
-            readOnly
-            value={${fieldName}?.toUTCString() ?? new Date().toUTCString()}
-            className="hidden"
-          />
-
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-[240px] pl-3 text-left font-normal",
-                !${entitySingular}?.${fieldName} && "text-muted-foreground",
-              )}
-            >
-              {${fieldName} ? (
-                <span>{format(${fieldName}, "PPP")}</span>
-              ) : (
-                <span>Pick a date</span>
-              )}
-              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              onSelect={(e) => set${fieldName
-                .slice(0, 1)
-                .toUpperCase()
-                .concat(fieldName.slice(1))}(e)}
-              selected={${fieldName}}
-              disabled={(date) =>
-                date > new Date() || date < new Date("1900-01-01")
-              }
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-        {errors?.${fieldName} ? (
-          <p className="text-xs text-destructive mt-2">{errors.${fieldName}[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>`;
-
-  return `        <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.${fieldName} ? "text-destructive" : "",
-          )}
-        >
-          ${fieldForLabel}
-        </Label>
-        <Input
-          type="text"
-          name="${fieldName}"
-          className={cn(errors?.${fieldName} ? "ring ring-destructive" : "")}
-          defaultValue={${entitySingular}?.${fieldName} ?? ""}
-        />
-        {errors?.${fieldName} ? (
-          <p className="text-xs text-destructive mt-2">{errors.${fieldName}[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>`;
-};
-
 const createFormInputComponentImports = (field: ColumnType) => {
   switch (field) {
     case "boolean":
@@ -734,12 +542,11 @@ const createFormComponent = (schema: Schema) => {
     tableNamePluralCapitalised,
     tableNameKebabCase,
   } = formatTableName(schema.tableName);
+  const { packages, driver, alias, t3 } = readConfigFile();
   const { shared } = getFilePaths();
   const relations = schema.fields.filter(
     (field) => field.type.toLowerCase() === "references"
   );
-
-  const config = readConfigFile();
 
   // terrible code, rewrite
   const relationsFormattedNew = formatRelations(relations);
@@ -776,38 +583,64 @@ const createFormComponent = (schema: Schema) => {
     ...new Set(schema.fields.map((field) => field.type)),
   ] as ColumnType[];
 
-  return `import { z } from "zod";
+  return `
+  "use client";
+  import { z } from "zod";
+  import { useForm } from "react-hook-form";
+  import { zodResolver } from "@hookform/resolvers/zod";
+  ${packages.includes("shadcn-ui") ? `\nimport { toast } from "sonner";` : ""}
 
-import { useState, useTransition } from "react";
-import { useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useValidatedForm } from "${formatFilePath(
-    `lib/hooks/useValidatedForm.tsx`,
-    { prefix: "alias", removeExtension: true }
-  )}";
 
+  import {
+    create${tableNameSingularCapitalised}Action,
+    delete${tableNameSingularCapitalised}Action,
+    update${tableNameSingularCapitalised}Action,
+  } from "${formatFilePath(`lib/actions/${tableNameCamelCase}`, {
+    prefix: "alias",
+    removeExtension: false,
+  })}";
+  import { ${tableNameSingularCapitalised}, New${tableNameSingularCapitalised}Params, insert${tableNameSingularCapitalised}Params } from "${formatFilePath(
+    shared.orm.schemaDir,
+    { prefix: "alias", removeExtension: false }
+  )}/${tableNameCamelCase}";
+
+    import {
+      Form,
+      FormControl,
+      FormField,
+      FormItem,
+      FormLabel,
+      FormMessage,
+    } from "${alias}/components/ui/form";
+    import { Input } from "${alias}/components/ui/input";
+    import { Button } from "${alias}/components/ui/button";${
+    schema.fields.filter((field) => field.type.toLowerCase() === "boolean")
+      .length > 0
+      ? `\nimport { Checkbox } from "${alias}/components/ui/checkbox";`
+      : ""
+  }${
+    relations.length > 0
+      ? `\nimport { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "${alias}/components/ui/select";`
+      : ""
+  }${
+    schema.fields.filter(
+      (field) =>
+        field.type === "date" ||
+        field.type === "timestamp" ||
+        field.type === "DateTime"
+    ).length > 0
+      ? `import { Popover, PopoverContent, PopoverTrigger } from "${alias}/components/ui/popover";
+        import { CalendarIcon } from "lucide-react";
+        import { Calendar } from "${alias}/components/ui/calendar";`
+      : ""
+  }
 import { type Action, cn } from "${formatFilePath(shared.init.libUtils, {
     prefix: "alias",
     removeExtension: true,
   })}";
-import { type TAddOptimistic } from "${formatFilePath(
-    `app/(app)/${tableNameKebabCase}/useOptimistic${tableNamePluralCapitalised}.tsx`,
-    { prefix: "alias", removeExtension: true }
-  )}";
 
-import { Input } from "${formatFilePath(`components/ui/input`, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
-import { Button } from "${formatFilePath(`components/ui/button`, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
-import { Label } from "${formatFilePath(`components/ui/label`, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
+import { useRouter } from "next/navigation";
+
 import { useBackPath } from "${formatFilePath(`components/shared/BackButton`, {
     prefix: "alias",
     removeExtension: false,
@@ -817,18 +650,8 @@ ${uniqueFieldTypes
   .map((field) => createFormInputComponentImports(field))
   .join("\n")}
 
-import { type ${tableNameSingularCapitalised}, insert${tableNameSingularCapitalised}Params } from "${formatFilePath(
-    `${shared.orm.schemaDir}/${tableNameCamelCase}`,
-    { prefix: "alias", removeExtension: false }
-  )}";
-import {
-  create${tableNameSingularCapitalised}Action,
-  delete${tableNameSingularCapitalised}Action,
-  update${tableNameSingularCapitalised}Action,
-} from "${formatFilePath(`lib/actions/${tableNameCamelCase}`, {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
+
+
 ${
   relationsFormattedNew
     ? relationsFormattedNew
@@ -837,37 +660,26 @@ ${
     : ""
 }
 
-const ${tableNameSingularCapitalised}Form = ({${
-    relationsFormattedNew
-      ? "\n  ".concat(
-          relationsFormattedNew
-            .map((relation) => `${relation.tnCamelCaseAndTnId},`)
-            .join("\n  ")
-        )
-      : ""
-  }
+const ${tableNameSingularCapitalised}Form = ({
   ${tableNameSingular},
-  openModal,
   closeModal,
-  addOptimistic,
-  postSuccess,
 }: {
-  ${tableNameSingular}?: ${tableNameSingularCapitalised} | null;${
-    relationsFormattedNew
-      ? "\n  ".concat(
-          relationsFormattedNew
-            .map((relation) => relation.componentImportCompleteTypeAndId)
-            .join("\n  ")
-        )
-      : ""
-  }
-  openModal?: (${tableNameSingular}?: ${tableNameSingularCapitalised}) => void;
+  ${tableNameSingular}?: ${tableNameSingularCapitalised};
   closeModal?: () => void;
-  addOptimistic?: TAddOptimistic;
-  postSuccess?: () => void;
-}) => {
-  const { errors, hasErrors, setErrors, handleChange } =
-    useValidatedForm<${tableNameSingularCapitalised}>(insert${tableNameSingularCapitalised}Params);
+}) =>  {
+    const form = useForm<z.infer<typeof insert${tableNameSingularCapitalised}Params>>({
+      resolver: zodResolver(insert${tableNameSingularCapitalised}Params),
+      defaultValues: ${tableNameSingular} ?? {
+        ${schema.fields
+          .map(
+            (field) =>
+              `${toCamelCase(field.name)}: ${
+                defaultValueMappings[driver][field.type]
+              }`
+          )
+          .join(",\n     ")}
+      },
+    });
   const editing = !!${tableNameSingular}?.id;
   ${
     dateFields.length > 0
@@ -886,8 +698,31 @@ const ${tableNameSingularCapitalised}Form = ({${
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
+
+  const { mutate: create${tableNameSingularCapitalised}, isLoading: isCreating } = useMutation({
+    mutationFn: (values) => create${tableNameSingularCapitalised}Action(values),
+    onSuccess: (res) => onSuccess("create"),
+    onError: (err) => console.error({ error: err.message }),
+  });
+
+  const { mutate: update${tableNameSingularCapitalised}, isLoading: isUpdating } = useMutation({
+    mutationFn: (values) =>
+      update${tableNameSingularCapitalised}Action({ ...values, id: ${tableNameSingular}?.id || "" }),
+
+    onSuccess: (res) => onSuccess("update"),
+    onError: (err) => console.error({ error: err.message }),
+  });
+
+  const { mutate: delete${tableNameSingularCapitalised}, isLoading: isDeleting } = useMutation({
+    mutationFn: (values) =>
+      delete${tableNameSingularCapitalised}Action(${tableNameSingular}?.id as string),
+    onSuccess: (res) => onSuccess("delete"),
+    onError: (err) => console.error({ error: err.message }),
+  });
+
   const router = useRouter();
   const backpath = useBackPath("${tableNameKebabCase}");
+
 
 
   const onSuccess = (
@@ -900,145 +735,65 @@ const ${tableNameSingularCapitalised}Form = ({${
       toast.error(\`Failed to \${action}\`, {
         description: data?.error ?? "Error",
       });
-    } else {
-      router.refresh();
-      postSuccess && postSuccess();
-      toast.success(\`${tableNameSingularCapitalised} \${action}d!\`);
-      if (action === "delete") router.push(backpath);
-    }
-  };
-
-  const handleSubmit = async (data: FormData) => {
-    setErrors(null);
-
-    const payload = Object.fromEntries(data.entries());
-    const ${tableNameSingular}Parsed = await insert${tableNameSingularCapitalised}Params.safeParseAsync({ ${
-    relationsFormattedNew
-      ? relationsFormattedNew
-          .map((r) => r.tableNameSingularWithId + ",")
-          .join("\n  ")
-      : ""
-  } ...payload });
-    if (!${tableNameSingular}Parsed.success) {
-      setErrors(${tableNameSingular}Parsed?.error.flatten().fieldErrors);
       return;
     }
+    router.refresh();
+    postSuccess?.();
+    closeModal?.();
+    toast.success(\`${tableNameSingularCapitalised} \${action}d!\`);
+    if (action === "delete") router.push(backpath);
+  };
 
-    closeModal && closeModal();
-    const values = ${tableNameSingular}Parsed.data;
-    const pending${tableNameSingularCapitalised}: ${tableNameSingularCapitalised} = {
-      ${
-        schema.includeTimestamps
-          ? `updatedAt: ${tableNameSingular}?.updatedAt ?? new Date()${
-              config.driver === "sqlite" && config.orm === "drizzle"
-                ? `.toISOString().slice(0, 19).replace("T", " ")`
-                : ""
-            },
-      createdAt: ${tableNameSingular}?.createdAt ?? new Date()${
-              config.driver === "sqlite" && config.orm === "drizzle"
-                ? `.toISOString().slice(0, 19).replace("T", " ")`
-                : ""
-            },`
-          : ""
-      }
-      id: ${tableNameSingular}?.id ?? "",${
-    schema.belongsToUser
-      ? `\n      userId: ${tableNameSingular}?.userId ?? "",`
-      : ""
-  }
-      ...values,
-    };
-    try {
-      startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pending${tableNameSingularCapitalised},
-          action: editing ? "update" : "create",
-        });
-
-        const error = editing
-          ? await update${tableNameSingularCapitalised}Action({ ...values, id: ${tableNameSingular}.id })
-          : await create${tableNameSingularCapitalised}Action(values);
-
-        const errorFormatted = {
-          error: error ?? "Error",
-          values: pending${tableNameSingularCapitalised} 
-        };
-        onSuccess(
-          editing ? "update" : "create",
-          error ? errorFormatted : undefined,
-        );
-      });
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        setErrors(e.flatten().fieldErrors);
-      }
+  const handleSubmit = (values: New${tableNameSingularCapitalised}Params) => {
+    if (editing) {
+      update${tableNameSingularCapitalised}({ ...values, id: ${tableNameSingular}.id });
+    } else {
+      create${tableNameSingularCapitalised}(values);
     }
   };
 
   return (
-    <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
-      {/* Schema fields start */}
-      ${schema.fields
-        .map((field) => createformInputComponent(field, tableNameCamelCase))
-        .join("\n")}
-      {/* Schema fields end */}
-
-      {/* Save Button */}
-      <SaveButton errors={hasErrors} editing={editing} />
-
-      {/* Delete Button */}
-      {editing ? (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={"space-y-8"}>
+        ${schema.fields
+          .map(
+            (field) => `<FormField
+          control={form.control}
+          name="${toCamelCase(field.name)}"
+          render={({ field }) => (<FormItem>
+              <FormLabel>${toNormalEnglish(field.name)}</FormLabel>
+                ${createformInputComponent(field)}
+              <FormMessage />
+            </FormItem>
+          )}
+        />`
+          )
+          .join("\n        ")}
         <Button
-          type="button"
-          disabled={isDeleting || pending || hasErrors}
-          variant={"destructive"}
-          onClick={() => {
-            setIsDeleting(true);
-            closeModal && closeModal();
-            startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: ${tableNameSingular} });
-              const error = await delete${tableNameSingularCapitalised}Action(${tableNameSingular}.id);
-              setIsDeleting(false);
-              const errorFormatted = {
-                error: error ?? "Error",
-                values: ${tableNameSingular},
-              };
-
-              onSuccess("delete", error ? errorFormatted : undefined);
-            });
-          }}
+          type="submit"
+          className="mr-1"
+          disabled={isCreating || isUpdating}
         >
-          Delet{isDeleting ? "ing..." : "e"}
+          {editing
+            ? \`Sav\${isUpdating ? "ing..." : "e"}\`
+            : \`Creat\${isCreating ? "ing..." : "e"}\`}
         </Button>
-      ) : null}
-    </form>
+        {editing ? (
+          <Button
+            type="button"
+            variant={"destructive"}
+            onClick={() => delete${tableNameSingularCapitalised}({ id: ${tableNameSingular}.id })}
+          >
+            Delet{isDeleting ? "ing..." : "e"}
+          </Button>
+        ) : null}
+      </form>
+    </Form>
   );
 };
 
 export default ${tableNameSingularCapitalised}Form;
 
-const SaveButton = ({
-  editing,
-  errors,
-}: {
-  editing: Boolean;
-  errors: boolean;
-}) => {
-  const { pending } = useFormStatus();
-  const isCreating = pending && editing === false;
-  const isUpdating = pending && editing === true;
-  return (
-    <Button
-      type="submit"
-      className="mr-2"
-      disabled={isCreating || isUpdating || errors}
-      aria-disabled={isCreating || isUpdating || errors}
-    >
-      {editing
-        ? \`Sav\${isUpdating ? "ing..." : "e"}\`
-        : \`Creat\${isCreating ? "ing..." : "e"}\`}
-    </Button>
-  );
 };
 `;
 };
@@ -1171,9 +926,6 @@ const createOptimisticListHook = (schema: Schema) => {
     tableNameSingular,
   } = formatTableName(schema.tableName);
 
-  // TODO: This is causing bug
-  const hasJoins = queryHasJoins(schema.tableName);
-
   const { shared } = getFilePaths();
   const relations = getRelations(schema.fields);
   const relationsFormatted = formatRelations(relations);
@@ -1222,9 +974,7 @@ export const useOptimistic${tableNamePluralCapitalised} = (
           : ""
       }
 
-      ${
-        !hasJoins
-          ? `const optimistic${tableNameSingularCapitalised} = {
+      ${`const optimistic${tableNameSingularCapitalised} = {
         ...data,${
           relationsFormatted
             ? "\n        ".concat(
@@ -1235,20 +985,7 @@ export const useOptimistic${tableNamePluralCapitalised} = (
             : ""
         }
         id: "optimistic",
-      };`
-          : `const optimistic${tableNameSingularCapitalised} = {
-        ${tableNameSingular}: { ...data, id: "optimistic" },
-        ${
-          relationsFormatted
-            ? "\n        ".concat(
-                relationsFormatted
-                  .map((relation) => relation.optimisticEntityRelation)
-                  .join("\n       ")
-              )
-            : ""
-        }
-      };`
-      }
+      };`}
 
       switch (action.action) {
         case "create":
@@ -1257,21 +994,11 @@ export const useOptimistic${tableNamePluralCapitalised} = (
             : [...currentState, optimistic${tableNameSingularCapitalised}];
         case "update":
           return currentState.map((item) =>
-            item.${
-              hasJoins ? `${tableNameSingular}.` : ""
-            }id === data.id ? { ...item, ...optimistic${tableNameSingularCapitalised} } : item,
+            item.id === data.id ? { ...item, ...optimistic${tableNameSingularCapitalised} } : item,
           );
         case "delete":
           return currentState.map((item) =>
-            ${
-              !hasJoins
-                ? `item.${
-                    hasJoins ? `${tableNameSingular}.` : ""
-                  }id === data.id ? { ...item, id: "delete" } : item,`
-                : `item.${tableNameSingular}.id === data.id
-              ? { ...item, ${tableNameSingular}: { ...item.${tableNameSingular}, id: "delete" } }
-              : item,`
-            }
+        item.id === data.id ? { ...item, id: "delete" } : item,
           );
         default:
           return currentState;
@@ -1336,301 +1063,8 @@ export function useValidatedForm<Entity>(insertEntityZodSchema: ZodSchema) {
   }
 };
 
-const createSubPage = (schema: ExtendedSchema, isChild: boolean) => {
-  const {
-    tableNameSingularCapitalised,
-    tableNameCamelCase,
-    tableNameSingular,
-    tableNameKebabCase,
-  } = formatTableName(schema.tableName);
-  const { shared } = getFilePaths();
-  // const hasJoins = queryHasJoins(schema.tableName);
-  const hasJoins = false; // added data transformation so hasJoins will always be false
-
-  const relations = getRelations(schema.fields);
-  const relationsFormatted = formatRelations(relations);
-
-  const config = readConfigFile();
-
-  const children =
-    schema.children.length > 0
-      ? schema.children.map((c) => formatTableName(c.tableName))
-      : [];
-
-  return `import { Suspense } from "react";
-import { notFound } from "next/navigation";
-
-import { get${tableNameSingularCapitalised}ById${
-    children.length > 0
-      ? `With${children.map((c) => c.tableNameCapitalised).join("And")}`
-      : ""
-  } } from "${formatFilePath(
-    shared.orm.servicesDir.concat(`/${tableNameCamelCase}/queries.ts`),
-    { prefix: "alias", removeExtension: true }
-  )}";
-${
-  relationsFormatted
-    ? relationsFormatted
-        .map((relation) => relation.importStatementQueries)
-        .join("\n")
-    : ""
-}import Optimistic${tableNameSingularCapitalised} from "${
-    schema.parents.length > 0
-      ? `${formatFilePath(
-          `app/(app)/${tableNameKebabCase}/[${tableNameSingular}Id]/Optimistic${tableNameSingularCapitalised}`,
-          { prefix: "alias", removeExtension: false }
-        )}`
-      : `./Optimistic${tableNameSingularCapitalised}`
-  }";${
-    schema.belongsToUser
-      ? `\nimport { checkAuth } from "${formatFilePath(shared.auth.authUtils, {
-          prefix: "alias",
-          removeExtension: true,
-        })}";`
-      : ""
-  }
-${
-  children.length > 0
-    ? children
-        .map(
-          (c) =>
-            `import ${
-              c.tableNameSingularCapitalised
-            }List from "${formatFilePath(
-              `components/${c.tableNameCamelCase}/${c.tableNameSingularCapitalised}List`,
-              { removeExtension: false, prefix: "alias" }
-            )}";`
-        )
-        .join("\n")
-    : ""
-}
-
-import { BackButton } from "${formatFilePath("components/shared/BackButton", {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
-import Loading from "${formatFilePath("app/loading.tsx", {
-    removeExtension: true,
-    prefix: "alias",
-  })}";
-
-
-export const revalidate = 0;
-
-export default async function ${tableNameSingularCapitalised}Page({
-  params,
-}: {
-  params: { ${tableNameSingular}Id: string };
-}) {
-
-  return (
-    <main className="overflow-auto">
-      <${tableNameSingularCapitalised} id={params.${tableNameSingular}Id} />
-    </main>
-  );
-}
-
-const ${tableNameSingularCapitalised} = async ({ id }: { id: string }) => {
-  ${schema.belongsToUser ? "await checkAuth();\n" : ""}
-  const { ${tableNameSingular}${
-    children.length > 0
-      ? children.map((c) => `, ${c.tableNameCamelCase}`).join("")
-      : ""
-  } } = await get${tableNameSingularCapitalised}ById${
-    children.length > 0
-      ? `With${children.map((c) => c.tableNameCapitalised).join("And")}`
-      : ""
-  }(id);
-  ${
-    relationsFormatted
-      ? relationsFormatted.map((relation) => relation.invocation).join("\n  ")
-      : ""
-  }
-
-  if (!${tableNameSingular}) notFound();
-  return (
-    <Suspense fallback={<Loading />}>
-      <div className="relative">
-        <BackButton currentResource="${tableNameKebabCase}" />
-        <Optimistic${tableNameSingularCapitalised} ${tableNameSingular}={${tableNameSingular}${
-    hasJoins ? `.${tableNameSingular}` : ""
-  }} ${
-    relationsFormatted
-      ? relationsFormatted
-          // TODO TODO
-          .map((relation) =>
-            isChild === false
-              ? relation.props
-              : relation.propsWithCustomId(tableNameSingular)
-          )
-          .join(" ")
-      : ""
-  } />
-      </div>${
-        children.length > 0
-          ? children
-              .map(
-                (c) => `
-      <div className="relative mt-8 mx-4">
-        <h3 className="text-xl font-medium mb-4">{${tableNameSingular}.${toCamelCase(
-                  schema.fields[0].name
-                )}}&apos;s ${c.tableNameNormalEnglishCapitalised}</h3>
-        <${c.tableNameSingularCapitalised}List
-          ${tableNameCamelCase}={[]}
-          ${tableNameSingular}Id={${tableNameSingular}.id}
-          ${c.tableNameCamelCase}={${c.tableNameCamelCase}}
-        />
-      </div>`
-              )
-              .join("")
-          : ""
-      }
-    </Suspense>
-  );
-};
-`;
-};
-
-const createOptimisticEntityForSubPage = (schema: Schema) => {
-  const {
-    tableNameSingularCapitalised,
-    tableNameCapitalised,
-    tableNameCamelCase,
-    tableNameSingular,
-    tableNameKebabCase,
-  } = formatTableName(schema.tableName);
-
-  const { shared } = getFilePaths();
-
-  const relations = getRelations(schema.fields);
-  const relationsFormatted = formatRelations(relations);
-
-  return `"use client";
-
-import { useOptimistic, useState } from "react";
-import { TAddOptimistic } from "${formatFilePath(
-    `app/(app)/${tableNameKebabCase}/useOptimistic${tableNameCapitalised}`,
-    { prefix: "alias", removeExtension: false }
-  )}";
-import { type ${tableNameSingularCapitalised} } from "${formatFilePath(
-    shared.orm.schemaDir.concat(`/${tableNameCamelCase}`),
-    { prefix: "alias", removeExtension: false }
-  )}";
-import { cn } from "${formatFilePath(shared.init.libUtils, {
-    removeExtension: true,
-    prefix: "alias",
-  })}";
-
-import { Button } from "${formatFilePath("components/ui/button", {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
-import Modal from "${formatFilePath("components/shared/Modal", {
-    prefix: "alias",
-    removeExtension: false,
-  })}";
-import ${tableNameSingularCapitalised}Form from "${formatFilePath(
-    `components/${tableNameCamelCase}/${tableNameSingularCapitalised}Form`,
-    { prefix: "alias", removeExtension: false }
-  )}";
-${
-  relationsFormatted
-    ? relationsFormatted
-        .map((relation) => relation.importStatementCompleteSchemaType)
-        .join("\n")
-    : ""
-}
-
-export default function Optimistic${tableNameSingularCapitalised}({ 
-  ${tableNameSingular},
-  ${
-    relationsFormatted
-      ? relationsFormatted
-          .map((relation) => relation.tnCamelCaseAndTnId)
-          .join(",\n  ")
-      : ""
-  } 
-}: { 
-  ${tableNameSingular}: ${tableNameSingularCapitalised}; 
-  ${
-    relationsFormatted
-      ? "\n  ".concat(
-          relationsFormatted
-            .map((relation) => relation.componentImportCompleteTypeAndId)
-            .join("\n  ")
-        )
-      : ""
-  }
-}) {
-  const [open, setOpen] = useState(false);
-  const openModal = (_?: ${tableNameSingularCapitalised}) => {
-    setOpen(true);
-  };
-  const closeModal = () => setOpen(false);
-  const [optimistic${tableNameSingularCapitalised}, setOptimistic${tableNameSingularCapitalised}] = useOptimistic(${tableNameSingular});
-  const update${tableNameSingularCapitalised}: TAddOptimistic = (input) =>
-    setOptimistic${tableNameSingularCapitalised}({ ...input.data });
-
-  return (
-    <div className="m-4">
-      <Modal open={open} setOpen={setOpen}>
-        <${tableNameSingularCapitalised}Form
-          ${tableNameSingular}={optimistic${tableNameSingularCapitalised}}
-          ${
-            relationsFormatted
-              ? relationsFormatted
-                  .map((relation) => relation.propsWithId)
-                  .join("\n        ")
-              : ""
-          }
-          closeModal={closeModal}
-          openModal={openModal}
-          addOptimistic={update${tableNameSingularCapitalised}}
-        />
-      </Modal>
-      <div className="flex justify-between items-end mb-4">
-        <h1 className="font-semibold text-2xl">{optimistic${tableNameSingularCapitalised}.${toCamelCase(
-    schema.fields[0].name
-  )}}</h1>
-        <Button className="" onClick={() => setOpen(true)}>
-          Edit
-        </Button>
-      </div>
-      <pre
-        className={cn(
-          "bg-secondary p-4 rounded-lg break-all text-wrap",
-          optimistic${tableNameSingularCapitalised}.id === "optimistic" ? "animate-pulse" : "",
-        )}
-      >
-        {JSON.stringify(optimistic${tableNameSingularCapitalised}, null, 2)}
-      </pre>
-    </div>
-  );
-}
-`;
-};
-
 const queryHasJoins = (tableName: string) => {
   // const { hasSrc } = readConfigFile();
   const { orm } = readConfigFile();
   return false;
-  if (orm === "prisma") return false;
-
-  const { shared } = getFilePaths();
-  const { tableNameCamelCase } = formatTableName(tableName);
-
-  const path = `${formatFilePath(shared.orm.servicesDir, {
-    prefix: "rootPath",
-    removeExtension: false,
-  })}/${tableNameCamelCase}/queries.ts`;
-  const queryContent = getFileContents(path);
-
-  const defaultQueriesBoundary = queryContent.indexOf("With");
-  const hasChildren = defaultQueriesBoundary === -1 ? false : true;
-
-  const searchMaterial = hasChildren
-    ? queryContent.slice(0, defaultQueriesBoundary)
-    : queryContent;
-
-  return searchMaterial.includes("Join");
 };

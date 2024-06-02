@@ -21,6 +21,7 @@ import { addPackage, spinner } from "../add/index.js";
 import { initProject } from "../init/index.js";
 import { ExtendedSchema, Schema } from "./types.js";
 import { scaffoldViewsAndComponents } from "./generators/views.js";
+import { scaffoldViewsAndComponentsReactQuery } from "./generators/views-with-react-query.js";
 import {
   camelCaseToSnakeCase,
   formatTableName,
@@ -54,7 +55,8 @@ export type TResource =
   | "trpc_route"
   | "views_and_components_trpc"
   | "views_and_components_server_actions"
-  | "server_actions";
+  | "server_actions"
+  | "views_and_components_react_query";
 
 type TResourceGroup = "model" | "controller" | "view";
 
@@ -133,6 +135,10 @@ async function askForResourceType() {
     viewRequested = (await select({
       message: "Please select the type of view you would like to generate:",
       choices: [
+        {
+          name: "Server Actions with React query",
+          value: "views_and_components_react_query",
+        },
         {
           name: "Server Actions with Optimistic UI",
           value: "views_and_components_server_actions",
@@ -496,6 +502,8 @@ async function generateResources(
   if (resourceType.includes("trpc_route")) scaffoldTRPCRoute(schema);
   if (resourceType.includes("views_and_components_trpc"))
     scaffoldViewsAndComponents(schema);
+  if (resourceType.includes("views_and_components_react_query"))
+    scaffoldViewsAndComponentsReactQuery(schema);
   if (resourceType.includes("server_actions")) scaffoldServerActions(schema);
   if (resourceType.includes("views_and_components_server_actions"))
     scaffoldViewsAndComponentsWithServerActions(schema);
